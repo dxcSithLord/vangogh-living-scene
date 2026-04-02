@@ -1,0 +1,43 @@
+# Van Gogh Living Scene — Configuration
+# All tuneable values live here. No hardcoded constants in source.
+
+display:
+  width: 1600
+  height: 1200
+  saturation: 0.5        # inky saturation (0.0–1.0)
+
+paths:
+  background: "assets/backgrounds/van_gogh_cafe.jpg"
+  slots: "assets/slots/cafe_terrace_slots.json"
+  style_predict_model: "models/style/style_predict_int8.tflite"
+  style_transform_model: "models/style/style_transform_int8.tflite"
+  style_image: "assets/backgrounds/van_gogh_cafe.jpg"  # used as style source
+
+detection:
+  model: "/usr/share/imx500-models/imx500_network_ssd_mobilenetv2_fpnlite_320x320_pp.rpk"
+  confidence: 0.6
+  labels:
+    - "person"
+    - "cat"
+    - "dog"
+    - "bird"
+    - "horse"
+
+presence:
+  entering_frames: 8     # consecutive detections to confirm entry (at 5 fps)
+  exiting_frames: 30     # frames without detection before removal (at 5 fps)
+  ghost_ttl_seconds: 300 # seconds to cache last styled figure for re-entry
+
+rembg:
+  model_name: "u2net_human_seg"
+
+style:
+  content_size: 384      # input dimension for style transform model
+  predict_size: 256      # input dimension for style predict model
+  num_threads: 4         # TFLite interpreter threads
+
+memory:
+  rss_warning_mb: 460    # log WARNING if RSS exceeds this
+
+logging:
+  level: "INFO"          # DEBUG, INFO, WARNING, ERROR

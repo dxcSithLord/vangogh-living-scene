@@ -1,0 +1,77 @@
+# vangogh_scene.service — Van Gogh Living Scene systemd unit
+# SEC-03: Hardened service (CIS L2, DISA-STIG)
+# Target: systemd-analyze security score < 4.0
+
+[Unit]
+Description=Van Gogh Living Scene — e-ink art display
+After=multi-user.target
+Wants=multi-user.target
+
+[Service]
+Type=notify
+User=vangogh
+Group=vangogh
+WorkingDirectory=/home/vangogh/VanGaugh
+ExecStart=/home/vangogh/VanGaugh/venv/bin/python -m src.main
+Environment=PYTHONUNBUFFERED=1
+
+# --- Restart policy ---
+Restart=on-failure
+RestartSec=10
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+# --- Watchdog ---
+WatchdogSec=300
+
+# --- Resource limits ---
+LimitCORE=0
+MemoryMax=500M
+MemoryHigh=460M
+
+# --- Filesystem sandboxing ---
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadOnlyPaths=/home/vangogh/VanGaugh
+ReadWritePaths=/var/log/vangogh
+
+# --- Kernel hardening ---
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+
+# --- Privilege restriction ---
+NoNewPrivileges=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+MemoryDenyWriteExecute=no
+
+# --- Device access ---
+# Camera (CSI/video), SPI (display), GPIO required
+DevicePolicy=closed
+DeviceAllow=/dev/video* rw
+DeviceAllow=/dev/spidev* rw
+DeviceAllow=/dev/gpiochip* rw
+DeviceAllow=/dev/i2c-* rw
+
+# --- Network lockdown (offline device) ---
+PrivateNetwork=yes
+
+# --- System call filtering ---
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources
+
+# --- Misc hardening ---
+ProtectHostname=yes
+ProtectClock=yes
+LockPersonality=yes
+PrivateUsers=yes
+RemoveIPC=yes
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target
