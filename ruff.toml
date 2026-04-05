@@ -1,0 +1,66 @@
+# Ruff configuration — Van Gogh Living Scene
+# Enforces coding standards from CLAUDE.md:
+#   * Line length 100
+#   * Python 3.13+, PEP 604 type hints
+#   * Black-compatible formatting (4-space indent)
+#   * Import order: stdlib -> third-party -> local
+#   * No bare except, no print() in production paths
+#
+# Standards traceability: NIST SA-11 (code quality), OWASP A04/A05
+# Docs: https://docs.astral.sh/ruff/configuration/
+
+line-length = 100
+target-version = "py313"
+extend-exclude = [
+    "venv",
+    ".venv",
+    "models",
+    "assets",
+]
+
+[lint]
+# Rule groups enabled:
+#   E, W  — pycodestyle
+#   F     — pyflakes
+#   I     — isort (import ordering)
+#   UP    — pyupgrade (enforces PEP 604 `X | None`)
+#   B     — flake8-bugbear (common bugs, bare-except via B904/E722)
+#   S     — flake8-bandit (subset of bandit rules)
+#   T20   — flake8-print (no `print()` in production)
+#   PL    — pylint subset
+#   RUF   — ruff-specific
+select = [
+    "E", "W", "F", "I", "UP", "B", "S", "T20", "PL", "RUF",
+]
+
+# Rule exceptions with justifications:
+#   S101 — assert allowed in tests
+#   PLR0913 — too-many-arguments: some modules legitimately take many config values
+ignore = [
+    "PLR0913",
+]
+
+[lint.per-file-ignores]
+# Tests may use assert, print, and longer arg lists
+"tests/**" = ["S101", "T20", "PLR2004"]
+# Tools are CLI scripts where print() is the correct output mechanism
+"tools/**" = ["T20"]
+# Standalone __main__ sections in src modules use print for CLI feedback
+"src/presence.py" = ["T20"]
+"src/config_validator.py" = ["T20"]
+
+[lint.isort]
+known-first-party = ["src", "tools", "tests"]
+section-order = [
+    "future",
+    "standard-library",
+    "third-party",
+    "first-party",
+    "local-folder",
+]
+
+[format]
+# Black-compatible defaults
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"

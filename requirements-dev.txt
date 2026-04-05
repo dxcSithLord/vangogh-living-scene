@@ -1,0 +1,24 @@
+# Developer tooling — Van Gogh Living Scene
+#
+# Tools used by CI workflows and local development. Not installed on
+# the target Pi. Keep separate from requirements.in (runtime deps).
+#
+# Invoked from workflows:
+#   .github/workflows/lint.yml      — ruff, mypy
+#   .github/workflows/security.yml  — bandit, pip-audit, yamllint
+#   .github/workflows/test.yml      — pytest, pytest-cov, pytest-mock
+#
+# Last verified: 2026-04-05
+
+ruff>=0.8.0,<1.0
+mypy>=1.13,<2.0
+bandit>=1.8,<2.0
+pip-audit>=2.7,<3.0
+yamllint>=1.35,<2.0
+
+# Type stubs for third-party libs (non-hardware)
+types-PyYAML>=6.0,<7.0
+
+# Release tooling (used by .github/workflows/release.yml)
+# Upper bound widened 2026-04-05: cyclonedx-bom 7.3.0 is current and supports Py 3.13.
+cyclonedx-bom>=4.5,<8.0

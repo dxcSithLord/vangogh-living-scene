@@ -1,0 +1,39 @@
+# yamllint configuration — Van Gogh Living Scene
+# Validates YAML style for config.yaml and GitHub workflows.
+# Standards: OWASP A05 (Security Misconfiguration).
+
+extends: default
+
+rules:
+  # Project line-length ceiling is 100 for Python; YAML allows 120
+  # because GitHub Actions expressions can be long.
+  line-length:
+    max: 120
+    level: warning
+
+  # 2-space indent is the GitHub Actions convention.
+  indentation:
+    spaces: 2
+    indent-sequences: true
+    check-multi-line-strings: false
+
+  # Comments should have a space after the '#'.
+  comments:
+    require-starts-with-space: true
+    min-spaces-from-content: 1
+
+  # Allow "yes/no" and "on/off" (used in systemd-style configs).
+  truthy:
+    allowed-values: ['true', 'false', 'yes', 'no', 'on', 'off']
+    check-keys: false
+
+  # Document start marker (---) is optional.
+  document-start:
+    present: false
+
+ignore: |
+  venv/
+  .venv/
+  models/
+  assets/
+  requirements.lock
