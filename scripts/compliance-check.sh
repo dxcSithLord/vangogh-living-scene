@@ -154,9 +154,9 @@ fi
 # Helpers
 # ---------------------------------------------------------------------------
 
-# Temporary log directory — cleaned up on exit.
+# Log directory preserved after exit so paths in the summary/report stay
+# resolvable for debugging. /tmp is cleaned by the OS on reboot.
 LOG_DIR="$(mktemp -d)"
-trap 'rm -rf "${LOG_DIR}"' EXIT
 
 # Associative arrays: check name → pass/fail status and duration.
 declare -A CHECK_STATUS
@@ -226,17 +226,25 @@ run_check "pip-audit" pip-audit -r requirements.lock
 # 6. Yamllint
 run_check "yamllint" yamllint .
 
-# 7. Actionlint (optional — only if installed)
+# 7. Actionlint — required on the target Pi for full compliance. SKIP is
+#    only acceptable in --report-only mode or when VANGOGH_ALLOW_NON_PI=1
+#    bypasses the Pi gate (e.g. dev laptops without Go binaries installed).
 if command -v actionlint >/dev/null 2>&1; then
     # No -color flag: run_check redirects output to a log file, so ANSI
     # escapes would only pollute it.
     run_check "actionlint" actionlint
 else
-    CHECK_STATUS["actionlint"]="SKIP"
-    CHECK_DURATION["actionlint"]=0
     CHECK_LOG["actionlint"]="${LOG_DIR}/actionlint.log"
-    printf 'SKIP' > "${CHECK_LOG["actionlint"]}"
-    printf 'SKIP: actionlint not installed — skipping.\n'
+    CHECK_DURATION["actionlint"]=0
+    if [[ "${REPORT_ONLY}" -eq 1 || "${VANGOGH_ALLOW_NON_PI:-0}" == "1" ]]; then
+        CHECK_STATUS["actionlint"]="SKIP"
+        printf 'SKIP' > "${CHECK_LOG["actionlint"]}"
+        printf 'SKIP: actionlint not installed — skipping (bypass flag set).\n'
+    else
+        CHECK_STATUS["actionlint"]="FAIL"
+        printf 'FAIL: actionlint not installed on target Pi.\n' > "${CHECK_LOG["actionlint"]}"
+        printf 'FAIL: actionlint not installed on target Pi — required for full compliance.\n'
+    fi
 fi
 
 # 8. Pytest — ALL markers (including hardware)
@@ -299,6 +307,8 @@ print_summary() {
     else
         printf '\nResult: ONE OR MORE CHECKS FAILED\n\n'
     fi
+
+    printf 'Per-check logs preserved at: %s\n\n' "${LOG_DIR}"
 }
 
 print_summary
