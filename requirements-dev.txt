@@ -20,4 +20,5 @@ yamllint>=1.35,<2.0
 types-PyYAML>=6.0,<7.0
 
 # Release tooling (used by .github/workflows/release.yml)
-cyclonedx-bom>=4.5,<6.0
+# Upper bound widened 2026-04-05: cyclonedx-bom 7.3.0 is current and supports Py 3.13.
+cyclonedx-bom>=4.5,<8.0
