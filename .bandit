@@ -2,21 +2,29 @@
 # Static analysis for common Python security issues.
 # Standards: NIST SA-11, OWASP A04 (Insecure Design), OWASP A05.
 # Docs: https://bandit.readthedocs.io/en/latest/config.html
+#
+# YAML format — consumed via `bandit -c .bandit ...`.
+# Targets, severity, and confidence are CLI-only in bandit and are
+# supplied by .github/workflows/security.yml:
+#   bandit -c .bandit -r src tools --severity-level medium --confidence-level medium
+# Severity/confidence are set to medium because LOW findings are
+# reviewed manually during code review.
 
-[bandit]
-# Scan src/ and tools/; exclude tests and build artefacts.
-targets = src,tools
-exclude_dirs = tests,venv,.venv,models,assets,build,__pycache__
-
-# Report MEDIUM and HIGH severity findings only.
-# LOW findings are reviewed manually during code review.
-severity = medium
-confidence = medium
+# Exclude tests and build artefacts from scans.
+exclude_dirs:
+  - tests
+  - venv
+  - .venv
+  - models
+  - assets
+  - build
+  - __pycache__
 
 # Tests to skip with justifications:
 #   B101 — assert_used: disabled repo-wide because assertions are not used
 #          in production src paths (ruff S101 enforces this separately).
-skips = B101
+skips:
+  - B101
 
 # Tests to ensure are always enabled (core to this project's threat model):
 #   B602 — subprocess_popen_with_shell_equals_true (CLAUDE.md: no shell=True)
@@ -26,4 +34,11 @@ skips = B101
 #   B108 — hardcoded_tmp_directory (use tempfile module)
 #   B301 — pickle load (untrusted deserialisation)
 #   B506 — yaml_load (must use safe_load)
-tests = B602,B603,B605,B607,B108,B301,B506
+tests:
+  - B602
+  - B603
+  - B605
+  - B607
+  - B108
+  - B301
+  - B506
