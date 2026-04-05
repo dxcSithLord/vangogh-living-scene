@@ -1,11 +1,81 @@
-"""Shared test fixtures for the Van Gogh Living Scene test suite."""
+"""Shared test fixtures for the Van Gogh Living Scene test suite.
+
+Hardware stub preamble
+----------------------
+The sys.modules stubs below are installed before any src.* import occurs so
+that pytest collection succeeds on CI runners (GitHub Actions, ubuntu-latest)
+where hardware packages are not installed.
+
+Each stub block is guarded by a try/import: if the real package IS available
+(e.g. on the target Pi) it is left untouched and production behaviour is
+unchanged.
+
+Packages stubbed and the src module that triggers the need:
+  * picamera2, picamera2.devices, picamera2.devices.imx500
+      -> src/camera.py  (deferred imports inside Camera.start())
+  * inky, inky.auto
+      -> src/display.py (deferred import inside Display._init_hardware())
+  * rembg
+      -> src/isolator.py (deferred imports inside create_session / remove_background)
+  * ai_edge_litert, ai_edge_litert.interpreter
+      -> src/styler.py  (deferred imports inside Styler methods)
+  * systemd, systemd.daemon
+      -> src/main.py    (deferred import inside Application._watchdog_loop())
+"""
 
 import json
+import sys
 import tempfile
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
 from PIL import Image
+
+# ---------------------------------------------------------------------------
+# Hardware package stubs — installed only when the real package is absent
+# ---------------------------------------------------------------------------
+
+# --- picamera2 (src/camera.py) ---
+try:
+    import picamera2  # noqa: F401
+except ImportError:
+    _picamera2 = MagicMock()
+    sys.modules["picamera2"] = _picamera2
+    sys.modules["picamera2.devices"] = MagicMock()
+    sys.modules["picamera2.devices.imx500"] = MagicMock()
+
+# --- inky (src/display.py) ---
+try:
+    import inky  # noqa: F401
+except ImportError:
+    _inky = MagicMock()
+    sys.modules["inky"] = _inky
+    sys.modules["inky.auto"] = MagicMock()
+
+# --- rembg (src/isolator.py) ---
+try:
+    import rembg  # noqa: F401
+except ImportError:
+    sys.modules["rembg"] = MagicMock()
+
+# --- ai_edge_litert (src/styler.py) ---
+try:
+    import ai_edge_litert  # noqa: F401
+except ImportError:
+    sys.modules["ai_edge_litert"] = MagicMock()
+    sys.modules["ai_edge_litert.interpreter"] = MagicMock()
+
+# --- systemd (src/main.py) ---
+try:
+    import systemd  # noqa: F401
+except ImportError:
+    sys.modules["systemd"] = MagicMock()
+    sys.modules["systemd.daemon"] = MagicMock()
+
+# ---------------------------------------------------------------------------
+# Shared fixtures
+# ---------------------------------------------------------------------------
 
 
 @pytest.fixture
