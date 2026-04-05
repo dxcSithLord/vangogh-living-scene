@@ -5,7 +5,7 @@
 > Before making code changes: confirm the sprint matches
 > `docs/plan/sprints.md` per CLAUDE.md "Before writing code" rule #3.
 
-Last reviewed: 2026-04-05 (Sprint 5 complete)
+Last reviewed: 2026-04-06 (Sprint 6 in progress)
 
 ---
 
@@ -24,16 +24,48 @@ Last reviewed: 2026-04-05 (Sprint 5 complete)
 
 Sprint 5 complete (E1/E2/E3/E4 all merged). T1–T5 can run in parallel; T6 is serial after.
 
-### Todo
+Running totals against `docs/ci-baseline.md`:
 
-| ID | Title | Source | Parallel? |
+| Check | Baseline | Current | Delta |
+|---|---:|---:|---:|
+| ruff format files | 11 | 0 | −11 |
+| ruff lint findings | 45 | 32 | −13 |
+| mypy strict errors | 23 | 3 | −20 |
+| bandit (medium+) | 0 | 0 | — |
+| pip-audit CVEs | 0 | 0 | — |
+
+### Status
+
+| ID | Title | Status | PRs |
 |---|---|---|---|
-| T1 | Ruff autofix (format + --fix safe rules) | E4 baseline | ✅ |
-| T2 | Ruff lint (non-autofix) — one sub-PR per rule family | E4 baseline | ✅ sub-branches |
-| T3 | Mypy strict fixes — per module | E4 baseline | ✅ per module |
-| T4 | Bandit findings — by severity/module | E4 baseline | ✅ |
-| T5 | Pip-audit CVE dep bumps | E4 baseline | ✅ |
-| T6 | Flip continue-on-error → false across all workflows | — | **SERIAL** after T1–T5 |
+| T1 | Ruff autofix (format + --fix safe rules) | ✅ Done | #37 |
+| T2 | Ruff lint (non-autofix) — one sub-PR per rule family | Todo | — |
+| T3 | Mypy strict fixes — per module | 🟡 In progress (3 errors remaining) | #38 merged, #39 open |
+| T4 | Bandit findings — by severity/module | ✅ Done (already clean per baseline) | — |
+| T5 | Pip-audit CVE dep bumps | ✅ Done (already clean per baseline) | — |
+| T6 | Flip continue-on-error → false across all workflows | 🔒 Blocked on T2+T3 | — |
+
+### T3 remaining (3 mypy strict errors)
+
+One 1-file slice per error — can be bundled if trivial:
+
+| File | Error | Error code |
+|---|---|---|
+| `src/config_validator.py:110` | Argument 1 to `float` has incompatible type | arg-type |
+| `src/styler.py:99` | Returning `Any` from typed function | no-any-return |
+| `src/compositor.py:56` | Incompatible types in assignment (`Image` → `ImageFile` variable) | assignment |
+
+### T2 scope (32 ruff lint findings, 11 rule codes)
+
+Dominated by `PLC0415` (20 hits — import-outside-top-level, the lazy hardware-dep
+pattern). Split by rule family across sub-branches per the original plan:
+
+| Count | Rule | Suggested approach |
+|---:|---|---|
+| 20 | PLC0415 | Add targeted `# noqa: PLC0415` with justification, or `lint.per-file-ignores` for modules using lazy imports |
+| 2 | PLR0912 | Refactor or `# noqa` with justification |
+| 2 | RUF001 | Replace en-dash with hyphen in log strings (or allow via config) |
+| 1 each | B905, E402, E501, PLR0915, PLR2004, RUF059, S110, T201 | One-line fixes |
 
 ---
 
@@ -70,7 +102,9 @@ in `src/styler.py` / `src/isolator.py`.
 
 ## In-progress
 
-_(empty — populate as branches are created)_
+| ID | Title | Branch | PR |
+|---|---|---|---|
+| T3 (generics slice) | Add generic args to dict/Queue annotations | `sprint6/t3-generics-annotations` | #39 |
 
 ---
 
@@ -80,6 +114,8 @@ Full history in `PLAN_HISTORY.md`.
 
 | ID | Title | PR | Merged |
 |---|---|---|---|
+| **T3** (slice 1) | define_slots TypedDict + mypy.ini cleanup + LANCZOS codebase-wide + DisplayProtocol + Pillow/numpy in dev deps | #38 | 2026-04-05 |
+| **T1** | Ruff autofix sweep (format + --fix, 45→32 lint) | #37 | 2026-04-05 |
 | **E3** | scripts/compliance-check.sh (closes #26) | #35 | 2026-04-05 |
 | **E4** | CI baselines → docs/ci-baseline.md (closes #27) | #36 | 2026-04-05 |
 | **E2** | conftest.py hardware-dep stubs (closes #25) | #34 | 2026-04-05 |
