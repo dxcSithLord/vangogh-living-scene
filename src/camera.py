@@ -122,7 +122,8 @@ class Camera:
                 if consecutive_errors >= MAX_CONSECUTIVE_ERRORS:
                     logger.critical(
                         "Reached %d consecutive errors — backing off %.0fs",
-                        consecutive_errors, BACKOFF_SLEEP_SECONDS,
+                        consecutive_errors,
+                        BACKOFF_SLEEP_SECONDS,
                     )
                     time.sleep(BACKOFF_SLEEP_SECONDS)
                     consecutive_errors = 0
@@ -184,9 +185,7 @@ class Camera:
             if label is None or label not in self._allowed_labels:
                 continue
 
-            converted = self._imx500.convert_inference_coords(
-                box, metadata, self._picam2
-            )
+            converted = self._imx500.convert_inference_coords(box, metadata, self._picam2)
             x, y, w, h = (int(v) for v in converted)
             results.append(((x, y, w, h), label, score_f))
 
@@ -247,8 +246,11 @@ def _run_standalone(config_path: Path) -> None:
                 elapsed = time.monotonic() - start_time
                 logger.info(
                     "[%.1fs] %s (%.2f) crop=%dx%d",
-                    elapsed, det.label, det.confidence,
-                    det.crop.width, det.crop.height,
+                    elapsed,
+                    det.label,
+                    det.confidence,
+                    det.crop.width,
+                    det.crop.height,
                 )
     except KeyboardInterrupt:
         logger.info("Interrupted — shutting down")
@@ -259,7 +261,9 @@ def _run_standalone(config_path: Path) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Van Gogh camera detection test")
     parser.add_argument(
-        "--config", type=Path, default=Path("config/config.yaml"),
+        "--config",
+        type=Path,
+        default=Path("config/config.yaml"),
         help="Path to config.yaml (default: config/config.yaml)",
     )
     args = parser.parse_args()

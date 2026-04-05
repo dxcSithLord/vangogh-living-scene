@@ -3,8 +3,6 @@
 import copy
 from pathlib import Path
 
-import pytest
-
 from src.config_validator import validate_config
 
 

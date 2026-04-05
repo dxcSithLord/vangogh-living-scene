@@ -37,8 +37,7 @@ class TestOversizedJSON:
     def test_rejects_oversized_json(self, tmp_dir: Path) -> None:
         path = tmp_dir / "big.json"
         # Write > 1 MB of valid JSON
-        data = [{"id": f"s{i}", "x": 0, "y": 0, "width": 10, "height": 10}
-                for i in range(50_000)]
+        data = [{"id": f"s{i}", "x": 0, "y": 0, "width": 10, "height": 10} for i in range(50_000)]
         path.write_text(json.dumps(data), encoding="utf-8")
         with pytest.raises(ValueError, match="size limit"):
             SlotManager(slots_path=path, image_width=1600, image_height=1200)

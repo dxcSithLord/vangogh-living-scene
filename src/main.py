@@ -185,10 +185,14 @@ class Application:
         self._camera.start()
 
         cam_thread = threading.Thread(
-            target=self._camera.run_loop, name="camera", daemon=True,
+            target=self._camera.run_loop,
+            name="camera",
+            daemon=True,
         )
         presence_thread = threading.Thread(
-            target=self._presence.run_loop, name="presence", daemon=True,
+            target=self._presence.run_loop,
+            name="presence",
+            daemon=True,
         )
 
         cam_thread.start()
@@ -212,6 +216,7 @@ class Application:
         """Send systemd watchdog notifications until shutdown is requested."""
         try:
             from systemd.daemon import notify
+
             has_systemd = True
         except ImportError:
             has_systemd = False

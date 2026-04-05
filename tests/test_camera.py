@@ -8,10 +8,8 @@ import queue
 from unittest.mock import MagicMock, patch
 
 import numpy as np
-import pytest
-from PIL import Image
 
-from src.camera import Camera, Detection, MAX_CONSECUTIVE_ERRORS
+from src.camera import MAX_CONSECUTIVE_ERRORS, Camera, Detection
 
 
 class TestErrorLoopCap:

@@ -57,8 +57,14 @@ class SlotManager:
             slot = self._parse_slot(entry)
             self._validate_bounds(slot)
             self._slots[slot.id] = slot
-            logger.debug("Loaded slot '%s' at (%d, %d) %dx%d", slot.id, slot.x, slot.y,
-                         slot.width, slot.height)
+            logger.debug(
+                "Loaded slot '%s' at (%d, %d) %dx%d",
+                slot.id,
+                slot.x,
+                slot.y,
+                slot.width,
+                slot.height,
+            )
 
         logger.info("Loaded %d slot(s) from %s", len(self._slots), slots_path.name)
 

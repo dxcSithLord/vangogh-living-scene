@@ -75,7 +75,8 @@ def remove_background(image: Image.Image, session: Any) -> Image.Image:
     if result.mode != "RGBA":
         result = result.convert("RGBA")
 
-    logger.debug("Isolator output: %dx%d RGBA (RSS: %.0f MB)", result.width, result.height,
-                 _rss_mb())
+    logger.debug(
+        "Isolator output: %dx%d RGBA (RSS: %.0f MB)", result.width, result.height, _rss_mb()
+    )
     gc.collect()
     return result

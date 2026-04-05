@@ -8,11 +8,9 @@ ENTERED triggers the pipeline and EXITED clears the scene.
 import gc
 import json
 import queue
-import threading
-import time
 from pathlib import Path
 from typing import Any
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 from PIL import Image
@@ -21,7 +19,8 @@ from src.camera import Detection
 from src.compositor import Compositor
 from src.display import Display
 from src.presence import Event, PresenceManager, State
-from src.security_log import init_security_logger, logger as sec_logger
+from src.security_log import init_security_logger
+from src.security_log import logger as sec_logger
 from src.slots import SlotManager
 
 
