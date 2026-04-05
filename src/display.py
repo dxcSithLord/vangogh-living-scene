@@ -58,7 +58,7 @@ class Display:
                 self._width,
                 self._height,
             )
-            image = image.resize((self._width, self._height), Image.LANCZOS)
+            image = image.resize((self._width, self._height), Image.Resampling.LANCZOS)
 
         if image.mode != "RGB":
             image = image.convert("RGB")
