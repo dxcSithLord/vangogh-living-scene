@@ -1,7 +1,9 @@
 # Kanban — Van Gogh Living Scene
 
 > Canonical backlog. Columns move left→right as work progresses.
-> Session restart: read only **this file** plus `PROJECT_PLAN.md`.
+> Session restart (orientation): read this file plus `PROJECT_PLAN.md`.
+> Before making code changes: confirm the sprint matches
+> `docs/plan/sprints.md` per CLAUDE.md "Before writing code" rule #3.
 
 Last reviewed: 2026-04-05
 
