@@ -4,6 +4,8 @@ Consumes detections from the camera queue and emits clean
 ENTERED/EXITED events with debounce logic and ghost re-entry caching.
 """
 
+from __future__ import annotations
+
 import argparse
 import enum
 import logging
@@ -240,7 +242,7 @@ def _run_standalone(config_path: Path) -> None:
     """Standalone test with camera: prints ENTERED/EXITED events."""
     import yaml
 
-    from src.camera import Camera, Detection
+    from src.camera import Camera
 
     with config_path.open("r", encoding="utf-8") as f:
         config = yaml.safe_load(f)

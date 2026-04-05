@@ -68,9 +68,9 @@ class Camera:
 
     def start(self) -> None:
         """Load firmware onto IMX500 and start the camera stream."""
-        from picamera2 import Picamera2
-        from picamera2.devices import IMX500
-        from picamera2.devices.imx500 import NetworkIntrinsics
+        from picamera2 import Picamera2  # noqa: PLC0415 — lazy: hardware-only dep
+        from picamera2.devices import IMX500  # noqa: PLC0415
+        from picamera2.devices.imx500 import NetworkIntrinsics  # noqa: PLC0415
 
         logger.info("Loading IMX500 firmware: %s", self._model_path)
         self._imx500 = IMX500(self._model_path)
