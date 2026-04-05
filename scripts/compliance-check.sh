@@ -382,7 +382,7 @@ write_report() {
             local ms="${CHECK_DURATION[${name}]:-0}"
             local dur_str
             if [[ "${ms}" -ge 1000 ]]; then
-                dur_str="$(( ms / 1000 )).$( printf '%03d' $(( ms % 1000 )) | cut -c1-1 )s"
+                dur_str="$(( ms / 1000 )).$(( (ms % 1000) / 100 ))s"
             else
                 dur_str="${ms}ms"
             fi
