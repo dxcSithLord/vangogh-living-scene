@@ -139,6 +139,49 @@ EOF
 fi
 
 # ---------------------------------------------------------------------------
+# Peripheral detection — fail fast on missing hardware the project needs.
+# Bypassable with VANGOGH_ALLOW_NON_PI=1 (same gate as Pi detection).
+# ---------------------------------------------------------------------------
+check_peripherals() {
+    local missing=()
+
+    # Camera: IMX500 firmware + v4l2 node from libcamera/picamera2.
+    if [[ ! -r /lib/firmware/imx500_firmware.fpk ]]; then
+        missing+=("IMX500 firmware missing (/lib/firmware/imx500_firmware.fpk) — install apt package 'imx500-all'")
+    fi
+    if [[ ! -c /dev/video0 ]]; then
+        missing+=("/dev/video0 missing — check camera ribbon + enable camera via raspi-config")
+    fi
+
+    # Inky Impression uses SPI CE0.
+    if [[ ! -c /dev/spidev0.0 ]]; then
+        missing+=("/dev/spidev0.0 missing — enable SPI via raspi-config for Inky display")
+    fi
+
+    # Inky auto-detect reads HAT EEPROM over I2C-1.
+    if [[ ! -c /dev/i2c-1 ]]; then
+        missing+=("/dev/i2c-1 missing — enable I2C via raspi-config for Inky auto-detect")
+    fi
+
+    if [[ ${#missing[@]} -gt 0 ]]; then
+        printf 'ERROR: required peripherals missing on target Pi:\n' >&2
+        local m
+        for m in "${missing[@]}"; do
+            printf '  - %s\n' "${m}" >&2
+        done
+        return 1
+    fi
+    return 0
+}
+
+if [[ "${VANGOGH_ALLOW_NON_PI:-0}" != "1" ]]; then
+    if ! check_peripherals; then
+        printf '\nSet VANGOGH_ALLOW_NON_PI=1 to bypass this check.\n' >&2
+        exit 1
+    fi
+fi
+
+# ---------------------------------------------------------------------------
 # Activate virtual environment if present
 # ---------------------------------------------------------------------------
 VENV_PATH="${REPO_ROOT}/.venv"
