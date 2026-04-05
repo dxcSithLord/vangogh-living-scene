@@ -22,19 +22,17 @@ Last reviewed: 2026-04-05
 
 ## Current sprint: **Sprint 5 — CI completion**
 
-### Todo (Sprint 5)
-
-| ID | Title | Issues | Branch | Blocker? | Notes |
-|---|---|---|---|---|---|
-| **E1** | Pin GH Actions to SHAs + Dependabot | #24 | `ci/pr-4-pin-actions-shas` | **BLOCKER** | Must land first; all later PRs inherit SHA pinning |
-
-### Backlog — Sprint 5 (unblocked after E1 merges)
+### Todo (Sprint 5) — E1 merged, all three now unblocked
 
 | ID | Title | Issues | Branch | Parallel? |
 |---|---|---|---|---|
 | E2 | conftest.py hardware-dep stubs | #25 | `ci/e2-conftest-hw-stubs` | ✅ with E3, E4 |
 | E3 | scripts/compliance-check.sh (PR-7) | #26 | `ci/e3-compliance-check-sh` | ✅ with E2, E4 |
-| E4 | Capture CI baselines → docs/ci-baseline.md | #27 | `ci/e4-baseline-capture` | ✅ with E2, E3 (but benefits from E2 landing first for pytest counts) |
+| E4 | Capture CI baselines → docs/ci-baseline.md | #27 | `ci/e4-baseline-capture` | ✅ with E2, E3 (benefits from E2 landing first for real pytest counts) |
+
+### Backlog — Sprint 5
+
+_(empty — all Sprint 5 cards are in Todo)_
 
 ---
 
@@ -82,6 +80,8 @@ Full history in `PLAN_HISTORY.md`.
 
 | ID | Title | PR | Merged |
 |---|---|---|---|
+| **E1** | Pin GH Actions to SHAs + Dependabot (closes #24) | #29 | 2026-04-05 |
+| — | docs: kanban restructure + README | #28 | 2026-04-05 |
 | CI-3 | security workflow (PR-3) | #23 | 2026-04-05 |
 | CI-2 | lint + test workflows (PR-2) | #22 | 2026-04-05 |
 | CI-1 | per-tool configs (PR-1) | #21 | 2026-04-05 |

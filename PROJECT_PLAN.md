@@ -12,21 +12,19 @@ Last reviewed: 2026-04-05
 
 ## Current sprint
 
-**Sprint 5 — CI completion**
+**Sprint 5 — CI completion** — blocker cleared, 3 cards in flight
 
-Blocker: **E1 / #24** — Pin GitHub Actions to commit SHAs + add Dependabot.
-Must merge before any Sprint 5/6/7 work starts, so all subsequent PRs inherit SHA pinning.
+E1 (#24) merged as #29 on 2026-04-05. E2, E3, E4 are now unblocked and
+runnable in parallel branches.
 
 Top of kanban (snapshot — authoritative copy in `docs/plan/kanban.md`):
 
 | Status | ID | Title | Issues |
 |---|---|---|---|
-| Todo | **E1** | Pin GH Actions to SHAs + Dependabot (BLOCKER) | #24 |
-| Backlog | E2 | conftest.py hardware-dep stubs | #25 |
-| Backlog | E3 | scripts/compliance-check.sh | #26 |
-| Backlog | E4 | Capture CI baselines | #27 |
-
-After E1 merges, E2/E3/E4 run in parallel branches.
+| Todo | E2 | conftest.py hardware-dep stubs | #25 |
+| Todo | E3 | scripts/compliance-check.sh | #26 |
+| Todo | E4 | Capture CI baselines | #27 |
+| Done (recent) | E1 | Pin GH Actions to SHAs + Dependabot | #24 → PR #29 |
 
 ---
 

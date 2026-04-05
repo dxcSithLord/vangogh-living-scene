@@ -9,6 +9,8 @@
 
 | PR | Title | Merged | Closes |
 |---|---|---|---|
+| #29 | ci: pin workflow actions to commit SHAs + add Dependabot (PR-4) | 2026-04-05 | #24 |
+| #28 | docs: restructure plan to kanban model + add README | 2026-04-05 | — |
 | #23 | ci: add security workflow (PR-3) | 2026-04-05 | — (Related #17) |
 | #22 | ci: add lint and test workflows (PR-2) | 2026-04-05 | — (Related #17) |
 | #21 | ci: add per-tool configs (PR-1) | 2026-04-05 | #16 |
