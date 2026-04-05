@@ -1,0 +1,24 @@
+# Dependabot configuration — Van Gogh Living Scene
+# Scope: GitHub Actions only (pip ecosystem is a separate follow-up).
+# Standards: NIST SA-12 (supply chain), OWASP A06.
+#
+# Purpose: when an action's tag moves to a new SHA (new release),
+# Dependabot opens a PR with the updated SHA so pinning stays fresh
+# without manual tracking.
+# Docs: https://docs.github.com/en/code-security/dependabot/
+#       dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels:
+      - security
+      - tooling
+    commit-message:
+      prefix: ci
+      include: scope
