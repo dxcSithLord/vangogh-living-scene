@@ -17,6 +17,7 @@ import sys
 import tkinter as tk
 from pathlib import Path
 from tkinter import simpledialog
+from typing import TypedDict
 
 from PIL import Image, ImageDraw, ImageTk
 
@@ -26,13 +27,23 @@ DEFAULT_SLOT_WIDTH = 160
 DEFAULT_SLOT_HEIGHT = 200
 
 
+class Slot(TypedDict):
+    """Rectangular slot on the background image where a figure is composited."""
+
+    id: str
+    x: int
+    y: int
+    width: int
+    height: int
+
+
 class SlotDefiner:
     """Tkinter-based interactive slot placement tool."""
 
     def __init__(self, image_path: Path, output_dir: Path) -> None:
         self._image_path = image_path
         self._output_dir = output_dir
-        self._slots: list[dict] = []
+        self._slots: list[Slot] = []
 
         self._original = Image.open(image_path)
         self._original.load()
@@ -86,7 +97,7 @@ class SlotDefiner:
         """Redraw the image with current slot rectangles overlaid."""
         display = self._original.copy()
         if self._scale != 1.0:
-            display = display.resize((self._display_w, self._display_h), Image.LANCZOS)
+            display = display.resize((self._display_w, self._display_h), Image.Resampling.LANCZOS)
 
         draw = ImageDraw.Draw(display)
         for slot in self._slots:
@@ -122,7 +133,7 @@ class SlotDefiner:
         slot_x = max(0, min(img_x - width // 2, self._img_width - width))
         slot_y = max(0, min(img_y - height // 2, self._img_height - height))
 
-        slot = {"id": name, "x": slot_x, "y": slot_y, "width": width, "height": height}
+        slot: Slot = {"id": name, "x": slot_x, "y": slot_y, "width": width, "height": height}
         self._slots.append(slot)
         logger.info("Added slot '%s' at (%d, %d) %dx%d", name, slot_x, slot_y, width, height)
         self._redraw()
