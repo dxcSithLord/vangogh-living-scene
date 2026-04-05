@@ -31,6 +31,18 @@ REPORT_FILE="${SCRIPT_DIR}/compliance-report.md"
 TIMESTAMP="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 COMMIT_SHA="$(git -C "${REPO_ROOT}" rev-parse --short HEAD 2>/dev/null || echo "unknown")"
 
+# Canonical check ordering — single source of truth for summary + report.
+CHECK_ORDER=(
+    "ruff-format"
+    "ruff-lint"
+    "mypy"
+    "bandit"
+    "pip-audit"
+    "yamllint"
+    "actionlint"
+    "pytest"
+)
+
 # ---------------------------------------------------------------------------
 # Flags
 # ---------------------------------------------------------------------------
@@ -225,6 +237,7 @@ fi
 # 8. Pytest — ALL markers (including hardware)
 run_check "pytest" pytest tests/ \
     --cov=src \
+    --cov=tools \
     --cov-report=xml:"${LOG_DIR}/coverage.xml" \
     --cov-report=term \
     --junitxml="${LOG_DIR}/pytest-report.xml"
@@ -257,18 +270,7 @@ print_summary() {
         ${col4} "Log path"
     printf '%s\n' "${hr}"
 
-    local order=(
-        "ruff-format"
-        "ruff-lint"
-        "mypy"
-        "bandit"
-        "pip-audit"
-        "yamllint"
-        "actionlint"
-        "pytest"
-    )
-
-    for name in "${order[@]}"; do
+    for name in "${CHECK_ORDER[@]}"; do
         local status="${CHECK_STATUS[${name}]:-N/A}"
         local ms="${CHECK_DURATION[${name}]:-0}"
         local log="${CHECK_LOG[${name}]:-}"
@@ -317,18 +319,7 @@ write_report() {
         printf '| Check | Status | Duration |\n'
         printf '|-------|--------|----------|\n'
 
-        local order=(
-            "ruff-format"
-            "ruff-lint"
-            "mypy"
-            "bandit"
-            "pip-audit"
-            "yamllint"
-            "actionlint"
-            "pytest"
-        )
-
-        for name in "${order[@]}"; do
+        for name in "${CHECK_ORDER[@]}"; do
             local status="${CHECK_STATUS[${name}]:-N/A}"
             local ms="${CHECK_DURATION[${name}]:-0}"
             local dur_str
@@ -350,7 +341,7 @@ write_report() {
             printf 'One or more checks failed. Review per-check logs for details.\n\n'
 
             printf '### Failed check details\n\n'
-            for name in "${order[@]}"; do
+            for name in "${CHECK_ORDER[@]}"; do
                 if [[ "${CHECK_STATUS[${name}]:-}" == "FAIL" ]]; then
                     printf '#### %s\n\n' "${name}"
                     printf '```\n'
