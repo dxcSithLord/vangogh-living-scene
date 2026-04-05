@@ -29,7 +29,7 @@ Running totals against `docs/ci-baseline.md`:
 | Check | Baseline | Current | Delta |
 |---|---:|---:|---:|
 | ruff format files | 11 | 0 | −11 |
-| ruff lint findings | 45 | 32 | −13 |
+| ruff lint findings | 45 | 29 | −16 |
 | mypy strict errors | 23 | 3 | −20 |
 | bandit (medium+) | 0 | 0 | — |
 | pip-audit CVEs | 0 | 0 | — |
@@ -40,7 +40,7 @@ Running totals against `docs/ci-baseline.md`:
 |---|---|---|---|
 | T1 | Ruff autofix (format + --fix safe rules) | ✅ Done | #37 |
 | T2 | Ruff lint (non-autofix) — one sub-PR per rule family | Todo | — |
-| T3 | Mypy strict fixes — per module | 🟡 In progress (3 errors remaining) | #38 merged, #39 open |
+| T3 | Mypy strict fixes — per module | 🟡 In progress (3 errors remaining) | #38 merged, #39 open (review addressed) |
 | T4 | Bandit findings — by severity/module | ✅ Done (already clean per baseline) | — |
 | T5 | Pip-audit CVE dep bumps | ✅ Done (already clean per baseline) | — |
 | T6 | Flip continue-on-error → false across all workflows | 🔒 Blocked on T2+T3 | — |
@@ -55,14 +55,15 @@ One 1-file slice per error — can be bundled if trivial:
 | `src/styler.py:99` | Returning `Any` from typed function | no-any-return |
 | `src/compositor.py:56` | Incompatible types in assignment (`Image` → `ImageFile` variable) | assignment |
 
-### T2 scope (32 ruff lint findings, 11 rule codes)
+### T2 scope (29 ruff lint findings, 11 rule codes)
 
-Dominated by `PLC0415` (20 hits — import-outside-top-level, the lazy hardware-dep
-pattern). Split by rule family across sub-branches per the original plan:
+Dominated by `PLC0415` (17 hits remaining — import-outside-top-level, the lazy
+hardware-dep pattern). 3 were suppressed in `camera.py` via `# noqa: PLC0415`
+as part of T3/#39 review follow-up. Split by rule family across sub-branches:
 
 | Count | Rule | Suggested approach |
 |---:|---|---|
-| 20 | PLC0415 | Add targeted `# noqa: PLC0415` with justification, or `lint.per-file-ignores` for modules using lazy imports |
+| 17 | PLC0415 | Add targeted `# noqa: PLC0415` with justification, or `lint.per-file-ignores` for modules using lazy imports |
 | 2 | PLR0912 | Refactor or `# noqa` with justification |
 | 2 | RUF001 | Replace en-dash with hyphen in log strings (or allow via config) |
 | 1 each | B905, E402, E501, PLR0915, PLR2004, RUF059, S110, T201 | One-line fixes |
@@ -104,7 +105,7 @@ in `src/styler.py` / `src/isolator.py`.
 
 | ID | Title | Branch | PR |
 |---|---|---|---|
-| T3 (generics slice) | Add generic args to dict/Queue annotations | `sprint6/t3-generics-annotations` | #39 |
+| T3 (generics slice) | dict/Queue generics + `__future__` annotations + camera.py PLC0415 noqa | `sprint6/t3-generics-annotations` | #39 |
 
 ---
 
