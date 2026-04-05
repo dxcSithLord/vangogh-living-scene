@@ -9,6 +9,9 @@
 
 | PR | Title | Merged | Closes |
 |---|---|---|---|
+| #35 | ci: add scripts/compliance-check.sh for full compliance run on target Pi | 2026-04-05 | #26 |
+| #36 | docs: capture CI tool baselines for Sprint 6 triage | 2026-04-05 | #27 |
+| #34 | tests: add hardware-dep sys.modules stubs to conftest.py | 2026-04-05 | #25 |
 | #29 | ci: pin workflow actions to commit SHAs + add Dependabot (PR-4) | 2026-04-05 | #24 |
 | #28 | docs: restructure plan to kanban model + add README | 2026-04-05 | — |
 | #23 | ci: add security workflow (PR-3) | 2026-04-05 | — (Related #17) |
