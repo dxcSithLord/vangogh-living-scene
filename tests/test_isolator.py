@@ -8,7 +8,7 @@ with pytest.mark.slow.
 import pytest
 from PIL import Image
 
-from src.isolator import remove_background, _MAX_INPUT_DIMENSION
+from src.isolator import _MAX_INPUT_DIMENSION, remove_background
 
 
 class TestInputValidation:

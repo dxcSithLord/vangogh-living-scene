@@ -10,8 +10,9 @@ import logging
 import queue
 import sys
 import time
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from PIL import Image
 
@@ -108,7 +109,9 @@ class PresenceManager:
 
         logger.info(
             "PresenceManager: enter=%d frames, exit=%d frames, ghost_ttl=%.0fs",
-            self._entering_threshold, self._exiting_threshold, ghost_ttl,
+            self._entering_threshold,
+            self._exiting_threshold,
+            ghost_ttl,
         )
 
     @property
@@ -174,7 +177,8 @@ class PresenceManager:
                 self._consecutive_detections += 1
                 logger.debug(
                     "ENTERING: %d/%d",
-                    self._consecutive_detections, self._entering_threshold,
+                    self._consecutive_detections,
+                    self._entering_threshold,
                 )
                 if self._consecutive_detections >= self._entering_threshold:
                     self._state = State.PRESENT
@@ -212,7 +216,8 @@ class PresenceManager:
                 self._consecutive_misses += 1
                 logger.debug(
                     "EXITING: %d/%d",
-                    self._consecutive_misses, self._exiting_threshold,
+                    self._consecutive_misses,
+                    self._exiting_threshold,
                 )
                 if self._consecutive_misses >= self._exiting_threshold:
                     # Cache the last crop before clearing
@@ -257,7 +262,9 @@ def _run_standalone(config_path: Path) -> None:
 
         # Run camera polling in a background thread
         cam_thread = threading.Thread(
-            target=camera.run_loop, name="camera", daemon=True,
+            target=camera.run_loop,
+            name="camera",
+            daemon=True,
         )
         cam_thread.start()
 
@@ -273,7 +280,9 @@ def _run_standalone(config_path: Path) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Van Gogh presence detection test")
     parser.add_argument(
-        "--config", type=Path, default=Path("config/config.yaml"),
+        "--config",
+        type=Path,
+        default=Path("config/config.yaml"),
         help="Path to config.yaml (default: config/config.yaml)",
     )
     args = parser.parse_args()

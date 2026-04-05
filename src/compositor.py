@@ -149,7 +149,9 @@ if __name__ == "__main__":
         "--debug", action="store_true", help="Render background with slot outlines on Inky"
     )
     parser.add_argument(
-        "--config", type=Path, default=Path("config/config.yaml"),
+        "--config",
+        type=Path,
+        default=Path("config/config.yaml"),
         help="Path to config.yaml (default: config/config.yaml)",
     )
     args = parser.parse_args()

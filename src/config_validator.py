@@ -104,9 +104,7 @@ def validate_config(config: dict[str, Any], project_root: Path) -> list[str]:
             value = float(value)
 
         if not isinstance(value, expected_type):
-            errors.append(
-                f"'{key}' must be {expected_type.__name__}, got: {type(value).__name__}"
-            )
+            errors.append(f"'{key}' must be {expected_type.__name__}, got: {type(value).__name__}")
             continue
 
         num = float(value)

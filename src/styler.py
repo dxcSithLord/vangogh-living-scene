@@ -15,7 +15,6 @@ import logging
 import resource
 import sys
 from pathlib import Path
-from typing import Any
 
 import numpy as np
 from PIL import Image
@@ -48,7 +47,9 @@ class Styler:
         self._rss_warning_mb = rss_warning_mb
 
         self._style_bottleneck = self._compute_bottleneck(
-            style_image_path, predict_model_path, predict_size,
+            style_image_path,
+            predict_model_path,
+            predict_size,
         )
 
     def _compute_bottleneck(
@@ -92,7 +93,8 @@ class Styler:
 
         logger.info(
             "Style bottleneck computed: shape %s (RSS: %.0f MB)",
-            bottleneck.shape, _rss_mb(),
+            bottleneck.shape,
+            _rss_mb(),
         )
         return bottleneck
 
@@ -114,9 +116,7 @@ class Styler:
         from ai_edge_litert.interpreter import Interpreter
 
         if not self._transform_model_path.is_file():
-            raise FileNotFoundError(
-                f"Transform model not found: {self._transform_model_path.name}"
-            )
+            raise FileNotFoundError(f"Transform model not found: {self._transform_model_path.name}")
 
         logger.debug("Styler input: %dx%d (RSS: %.0f MB)", image.width, image.height, _rss_mb())
 
@@ -127,7 +127,8 @@ class Styler:
         # Resize to model input size
         original_size = rgb.size
         rgb_resized = rgb.resize(
-            (self._content_size, self._content_size), Image.LANCZOS,
+            (self._content_size, self._content_size),
+            Image.LANCZOS,
         )
         content_array = np.array(rgb_resized, dtype=np.float32)[np.newaxis] / 255.0
 
@@ -166,8 +167,12 @@ class Styler:
         styled_rgba = styled_rgb.copy()
         styled_rgba.putalpha(alpha_resized)
 
-        logger.debug("Styler output: %dx%d RGBA (RSS: %.0f MB)",
-                     styled_rgba.width, styled_rgba.height, _rss_mb())
+        logger.debug(
+            "Styler output: %dx%d RGBA (RSS: %.0f MB)",
+            styled_rgba.width,
+            styled_rgba.height,
+            _rss_mb(),
+        )
         return styled_rgba
 
 
@@ -193,8 +198,9 @@ def _run_standalone(config_path: Path, input_path: Path) -> None:
     )
 
     input_img = Image.open(input_path).convert("RGBA")
-    logger.info("Styling input image: %s (%dx%d)", input_path.name, input_img.width,
-                input_img.height)
+    logger.info(
+        "Styling input image: %s (%dx%d)", input_path.name, input_img.width, input_img.height
+    )
 
     styled = styler.stylize(input_img)
 
@@ -206,10 +212,15 @@ def _run_standalone(config_path: Path, input_path: Path) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Van Gogh style transfer test")
     parser.add_argument(
-        "--input", type=Path, required=True, help="Path to input image (RGBA or RGB)",
+        "--input",
+        type=Path,
+        required=True,
+        help="Path to input image (RGBA or RGB)",
     )
     parser.add_argument(
-        "--config", type=Path, default=Path("config/config.yaml"),
+        "--config",
+        type=Path,
+        default=Path("config/config.yaml"),
         help="Path to config.yaml (default: config/config.yaml)",
     )
     args = parser.parse_args()

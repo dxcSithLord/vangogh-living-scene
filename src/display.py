@@ -26,7 +26,7 @@ class Display:
         if self._display is not None:
             return
         try:
-            from inky.auto import auto  # noqa: E402 — deferred import for Pi-only hw
+            from inky.auto import auto
 
             self._display = auto()
             self._display.set_border(self._display.WHITE)
@@ -54,7 +54,9 @@ class Display:
         if image.size != (self._width, self._height):
             logger.warning(
                 "Image size %s does not match display %dx%d — resizing",
-                image.size, self._width, self._height,
+                image.size,
+                self._width,
+                self._height,
             )
             image = image.resize((self._width, self._height), Image.LANCZOS)
 

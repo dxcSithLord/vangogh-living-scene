@@ -6,7 +6,7 @@ import pytest
 from PIL import Image
 
 from src.compositor import Compositor
-from src.slots import Slot, SlotManager
+from src.slots import SlotManager
 
 
 class TestMagicByteValidation:
@@ -59,6 +59,7 @@ class TestCompositing:
 def _make_slot_manager(tmp_dir: Path) -> SlotManager:
     """Create a SlotManager with a simple test slot."""
     import json
+
     slots = [{"id": "test_slot", "x": 0, "y": 0, "width": 200, "height": 300}]
     path = tmp_dir / "slots.json"
     path.write_text(json.dumps(slots), encoding="utf-8")
