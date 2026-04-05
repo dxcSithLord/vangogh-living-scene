@@ -8,6 +8,7 @@ import json
 import logging
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +70,7 @@ class SlotManager:
         logger.info("Loaded %d slot(s) from %s", len(self._slots), slots_path.name)
 
     @staticmethod
-    def _parse_slot(entry: dict) -> Slot:
+    def _parse_slot(entry: dict[str, Any]) -> Slot:
         """Parse a single slot entry, validating required fields."""
         required = ("id", "x", "y", "width", "height")
         for field in required:

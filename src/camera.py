@@ -154,7 +154,7 @@ class Camera:
     def _parse_detections(
         self,
         np_outputs: list[np.ndarray],
-        metadata: dict,
+        metadata: dict[str, Any],
     ) -> list[tuple[tuple[int, int, int, int], str, float]]:
         """Extract valid detections from NPU output tensors.
 
