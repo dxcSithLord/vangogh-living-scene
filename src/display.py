@@ -6,10 +6,22 @@ and refresh for the Pimoroni Inky Impression 13.3" 7-colour e-ink.
 
 import logging
 import time
+from typing import Protocol
 
 from PIL import Image
 
 logger = logging.getLogger(__name__)
+
+
+class DisplayProtocol(Protocol):
+    """Structural subset of the `inky.auto` display used by this module."""
+
+    WHITE: int
+    resolution: tuple[int, int]
+
+    def set_border(self, colour: int) -> None: ...
+    def set_image(self, image: Image.Image, saturation: float = ...) -> None: ...
+    def show(self) -> None: ...
 
 
 class Display:
@@ -19,7 +31,7 @@ class Display:
         self._width = width
         self._height = height
         self._saturation = saturation
-        self._display = None
+        self._display: DisplayProtocol | None = None
 
     def _init_hardware(self) -> None:
         """Lazy-initialise the inky display on first use."""
@@ -28,13 +40,14 @@ class Display:
         try:
             from inky.auto import auto
 
-            self._display = auto()
-            self._display.set_border(self._display.WHITE)
+            display: DisplayProtocol = auto()
+            display.set_border(display.WHITE)
             logger.info(
                 "Inky display initialised: %dx%d",
-                self._display.resolution[0],
-                self._display.resolution[1],
+                display.resolution[0],
+                display.resolution[1],
             )
+            self._display = display
         except ImportError:
             logger.error("inky library not available — display will not function")
             raise
@@ -58,16 +71,20 @@ class Display:
                 self._width,
                 self._height,
             )
-            image = image.resize((self._width, self._height), Image.LANCZOS)
+            image = image.resize((self._width, self._height), Image.Resampling.LANCZOS)
 
         if image.mode != "RGB":
             image = image.convert("RGB")
 
+        display = self._display
+        if display is None:
+            raise RuntimeError("Display hardware not initialised after _init_hardware()")
+
         logger.info("Starting display refresh")
         start = time.monotonic()
 
-        self._display.set_image(image, saturation=self._saturation)
-        self._display.show()
+        display.set_image(image, saturation=self._saturation)
+        display.show()
 
         elapsed = time.monotonic() - start
         logger.info("Display refresh completed in %.1f seconds", elapsed)

@@ -67,7 +67,7 @@ class Compositor:
             logger.warning("Figure is not RGBA — converting")
             figure = figure.convert("RGBA")
 
-        resized = figure.resize((slot.width, slot.height), Image.LANCZOS)
+        resized = figure.resize((slot.width, slot.height), Image.Resampling.LANCZOS)
         self._figures[slot.id] = resized
         logger.info("Added figure to slot '%s'", slot.id)
 

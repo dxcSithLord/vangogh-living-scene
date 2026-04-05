@@ -72,7 +72,7 @@ class Styler:
         logger.info("Computing style bottleneck from '%s'", style_image_path.name)
 
         style_img = Image.open(style_image_path).convert("RGB")
-        style_img = style_img.resize((predict_size, predict_size), Image.LANCZOS)
+        style_img = style_img.resize((predict_size, predict_size), Image.Resampling.LANCZOS)
         style_array = np.array(style_img, dtype=np.float32)[np.newaxis] / 255.0
 
         interpreter = Interpreter(
@@ -128,7 +128,7 @@ class Styler:
         original_size = rgb.size
         rgb_resized = rgb.resize(
             (self._content_size, self._content_size),
-            Image.LANCZOS,
+            Image.Resampling.LANCZOS,
         )
         content_array = np.array(rgb_resized, dtype=np.float32)[np.newaxis] / 255.0
 
@@ -162,8 +162,8 @@ class Styler:
         styled_rgb = Image.fromarray(styled_array, mode="RGB")
 
         # Resize back to original dimensions and re-apply alpha
-        styled_rgb = styled_rgb.resize(original_size, Image.LANCZOS)
-        alpha_resized = alpha.resize(original_size, Image.LANCZOS)
+        styled_rgb = styled_rgb.resize(original_size, Image.Resampling.LANCZOS)
+        alpha_resized = alpha.resize(original_size, Image.Resampling.LANCZOS)
         styled_rgba = styled_rgb.copy()
         styled_rgba.putalpha(alpha_resized)
 
