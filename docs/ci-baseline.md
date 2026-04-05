@@ -34,7 +34,7 @@ T6 (flip `continue-on-error` → `false`) runs after the counts reach zero.
 
 ### ruff format — 11 files
 
-```
+```text
 src/camera.py
 src/compositor.py
 src/config_validator.py
@@ -76,7 +76,7 @@ Grouped by rule code (descending):
 
 Findings by file (descending):
 
-```
+```text
  6  tests/test_integration.py
  6  src/camera.py
  5  src/presence.py
@@ -138,7 +138,7 @@ workflow check` step using pinned v1.7.12 binary + SHA256 verification.
 
 ### pytest — collection blocked
 
-```
+```text
 pytest tests/ --collect-only -m "not hardware"
   → collection errors (src/*.py imports hardware deps at module level)
 ```
@@ -174,7 +174,7 @@ During capture, `ruff` over-counted findings 3× because it traversed
 into `.claude/worktrees/*` (Claude Code agent worktrees). Current
 `ruff.toml` excludes are:
 
-```
+```toml
 extend-exclude = [ "venv", ".venv", "models", "assets" ]
 ```
 
