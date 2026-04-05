@@ -1,0 +1,70 @@
+# Lint workflow — Van Gogh Living Scene
+# Enforces coding standards from CLAUDE.md via ruff + mypy.
+# Standards: NIST SA-11, PEP 604, OWASP A04/A05.
+#
+# Initial rollout is report-only (continue-on-error). Once existing
+# violations are cleared in scoped follow-up PRs, flip the flags to
+# make this workflow blocking.
+
+name: lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: ruff + mypy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install dev tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Ruff format check
+        id: ruff-format
+        continue-on-error: true
+        run: ruff format --check .
+
+      - name: Ruff lint
+        id: ruff-lint
+        continue-on-error: true
+        run: ruff check . --output-format=github
+
+      - name: Mypy strict type check
+        id: mypy
+        continue-on-error: true
+        run: mypy src tools
+
+      - name: Summarise lint results
+        if: always()
+        run: |
+          {
+            echo "## Lint results"
+            echo ""
+            echo "| Check | Outcome |"
+            echo "|-------|---------|"
+            echo "| ruff format --check | ${{ steps.ruff-format.outcome }} |"
+            echo "| ruff check | ${{ steps.ruff-lint.outcome }} |"
+            echo "| mypy src tools | ${{ steps.mypy.outcome }} |"
+            echo ""
+            echo "Report-only mode — see individual step logs for details."
+          } >> "$GITHUB_STEP_SUMMARY"

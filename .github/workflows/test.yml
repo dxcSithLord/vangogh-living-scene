@@ -1,0 +1,98 @@
+# Test workflow — Van Gogh Living Scene
+# Runs pytest with coverage in report-only mode.
+# Standards: NIST SA-11 (SEC-07 unit test coverage).
+#
+# Hardware-dependent tests (@pytest.mark.hardware) are skipped on
+# GitHub runners. Full compliance testing runs on the target Pi via
+# scripts/compliance-check.sh (see docs/release-checklist.md in PR-7).
+#
+# Coverage gating is intentionally disabled at rollout (per decision
+# 2026-04-05). A baseline will be established, then a floor applied
+# in a follow-up PR.
+
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    name: pytest (not hardware)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install CI runtime deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-ci.txt
+
+      - name: Run pytest with coverage
+        id: pytest
+        continue-on-error: true
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          pytest tests/ \
+            -m "not hardware" \
+            --cov=src \
+            --cov-report=xml:coverage.xml \
+            --cov-report=html:htmlcov \
+            --cov-report=term \
+            --junitxml=pytest-report.xml
+
+      - name: Upload coverage XML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload coverage HTML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: htmlcov/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Upload JUnit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-junit
+          path: pytest-report.xml
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Summarise test results
+        if: always()
+        run: |
+          {
+            echo "## Test results"
+            echo ""
+            echo "pytest outcome: **${{ steps.pytest.outcome }}**"
+            echo ""
+            echo "Report-only mode — artifacts: coverage-xml, coverage-html, pytest-junit."
+            echo ""
+            echo "Hardware-dependent tests skipped (GitHub runners have no IMX500/Inky)."
+          } >> "$GITHUB_STEP_SUMMARY"
