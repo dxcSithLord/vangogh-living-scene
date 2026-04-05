@@ -218,14 +218,19 @@ run_check "bandit" bandit \
     -o "${LOG_DIR}/bandit-report.json"
 
 # 5. Pip-audit dependency CVE scan
-run_check "pip-audit" pip-audit -r requirements-ci.txt
+# Audit the Pi's actual installed manifest (hash-pinned lockfile used by
+# install.sh), not the CI subset — hardware deps (picamera2, inky,
+# ai-edge-litert, rembg) only live in requirements.lock.
+run_check "pip-audit" pip-audit -r requirements.lock
 
 # 6. Yamllint
 run_check "yamllint" yamllint .
 
 # 7. Actionlint (optional — only if installed)
 if command -v actionlint >/dev/null 2>&1; then
-    run_check "actionlint" actionlint -color
+    # No -color flag: run_check redirects output to a log file, so ANSI
+    # escapes would only pollute it.
+    run_check "actionlint" actionlint
 else
     CHECK_STATUS["actionlint"]="SKIP"
     CHECK_DURATION["actionlint"]=0
@@ -276,7 +281,7 @@ print_summary() {
         local log="${CHECK_LOG[${name}]:-}"
         local dur_str
         if [[ "${ms}" -ge 1000 ]]; then
-            dur_str="$(( ms / 1000 )).$( printf '%03d' $(( ms % 1000 )) | cut -c1-1 )s"
+            dur_str="$(( ms / 1000 )).$(( (ms % 1000) / 100 ))s"
         else
             dur_str="${ms}ms"
         fi
