@@ -1,0 +1,29 @@
+# Bandit SAST configuration — Van Gogh Living Scene
+# Static analysis for common Python security issues.
+# Standards: NIST SA-11, OWASP A04 (Insecure Design), OWASP A05.
+# Docs: https://bandit.readthedocs.io/en/latest/config.html
+
+[bandit]
+# Scan src/ and tools/; exclude tests and build artefacts.
+targets = src,tools
+exclude_dirs = tests,venv,.venv,models,assets,build,__pycache__
+
+# Report MEDIUM and HIGH severity findings only.
+# LOW findings are reviewed manually during code review.
+severity = medium
+confidence = medium
+
+# Tests to skip with justifications:
+#   B101 — assert_used: disabled repo-wide because assertions are not used
+#          in production src paths (ruff S101 enforces this separately).
+skips = B101
+
+# Tests to ensure are always enabled (core to this project's threat model):
+#   B602 — subprocess_popen_with_shell_equals_true (CLAUDE.md: no shell=True)
+#   B603 — subprocess_without_shell_equals_true (audit subprocess calls)
+#   B605 — start_process_with_a_shell
+#   B607 — start_process_with_partial_path
+#   B108 — hardcoded_tmp_directory (use tempfile module)
+#   B301 — pickle load (untrusted deserialisation)
+#   B506 — yaml_load (must use safe_load)
+tests = B602,B603,B605,B607,B108,B301,B506
