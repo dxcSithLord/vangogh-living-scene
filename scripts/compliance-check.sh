@@ -63,7 +63,7 @@ Checks performed:
   2. ruff check . --output-format=concise
   3. mypy src tools
   4. bandit -c .bandit -r src tools --severity-level medium --confidence-level medium
-  5. pip-audit -r requirements-ci.txt
+  5. pip-audit -r requirements.lock
   6. yamllint .
   7. actionlint (if installed)
   8. pytest tests/ (ALL markers, including hardware)
