@@ -63,8 +63,16 @@ _(empty — all Sprint 5 cards are in Todo)_
 | G-RSS | Enforce `memory.rss_warning_mb` in main | #8 | `gap/g-rss-threshold` | `main.py` |
 | G-CONFIG-EVT | Emit `CONFIG_VALIDATION_FAIL` security event | #18 | `gap/g-config-evt` | `config_validator.py`, `security_log.py` |
 | G-VERIFY | Verification tasks (read-only, may spawn follow-ups) | #11 #13 #20 | `gap/g-verify-*` | tests + docs |
+| G-INSTALL-DOC | Refresh `docs/plan/install.md` with confirmed deps | — | `gap/g-install-doc` | docs only |
 
 **Cross-sprint dependency:** G-SLOTS (#4) may unblock E2 integration tests → consider pulling into Sprint 5.
+
+**G-INSTALL-DOC gating:** do not start until all deps are tested and confirmed on-Pi
+(post-Sprint 6 + successful `scripts/compliance-check.sh` run). Current `docs/plan/install.md`
+is stale: uses `venv` instead of `.venv`, unpinned `pip install`, `tflite-runtime` instead of
+`ai_edge_litert`, and `curl -L` without SHA-256 for model downloads. Authoritative sources to
+sync against: `install.sh`, `requirements.lock`, `requirements-ci.txt`, and the real imports
+in `src/styler.py` / `src/isolator.py`.
 
 ---
 
