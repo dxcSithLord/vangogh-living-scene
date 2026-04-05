@@ -1,0 +1,100 @@
+# Security workflow — Van Gogh Living Scene
+# Runs static and supply-chain security checks on every push/PR.
+# Standards: NIST SA-11 (developer security testing), OWASP A04/A05/A06.
+#
+# Initial rollout is report-only (continue-on-error). Once existing
+# findings are triaged in scoped follow-up PRs, flip the flags to
+# make this workflow blocking.
+
+name: security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  security:
+    name: bandit + pip-audit + yamllint + actionlint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install dev tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Bandit SAST
+        id: bandit
+        continue-on-error: true
+        run: bandit -c .bandit -r src tools -f json -o bandit-report.json
+
+      - name: Pip-audit dependency CVE scan
+        id: pip-audit
+        continue-on-error: true
+        run: pip-audit -r requirements-ci.txt --format json --output pip-audit-report.json
+
+      - name: Yamllint
+        id: yamllint
+        continue-on-error: true
+        run: yamllint .
+
+      - name: Install actionlint
+        id: actionlint-install
+        run: |
+          bash <(curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+          echo "path=$(pwd)/actionlint" >> "$GITHUB_OUTPUT"
+
+      - name: Actionlint workflow check
+        id: actionlint
+        continue-on-error: true
+        run: ${{ steps.actionlint-install.outputs.path }} -color
+
+      - name: Upload bandit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-report
+          path: bandit-report.json
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Upload pip-audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pip-audit-report
+          path: pip-audit-report.json
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Summarise security results
+        if: always()
+        run: |
+          {
+            echo "## Security results"
+            echo ""
+            echo "| Check | Outcome |"
+            echo "|-------|---------|"
+            echo "| bandit (SAST) | ${{ steps.bandit.outcome }} |"
+            echo "| pip-audit (CVE) | ${{ steps.pip-audit.outcome }} |"
+            echo "| yamllint | ${{ steps.yamllint.outcome }} |"
+            echo "| actionlint | ${{ steps.actionlint.outcome }} |"
+            echo ""
+            echo "Report-only mode — see individual step logs and uploaded artefacts."
+          } >> "$GITHUB_STEP_SUMMARY"
