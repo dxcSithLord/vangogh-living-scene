@@ -64,8 +64,14 @@ _(empty — all Sprint 5 cards are in Todo)_
 | G-CONFIG-EVT | Emit `CONFIG_VALIDATION_FAIL` security event | #18 | `gap/g-config-evt` | `config_validator.py`, `security_log.py` |
 | G-VERIFY | Verification tasks (read-only, may spawn follow-ups) | #11 #13 #20 | `gap/g-verify-*` | tests + docs |
 | G-INSTALL-DOC | Refresh `docs/plan/install.md` with confirmed deps | — | `gap/g-install-doc` | docs only |
+| G-COMPLY-VERSIONS | Pre-flight tool-version check in `compliance-check.sh` | — | `gap/g-comply-versions` | `scripts/`, `requirements-dev.txt` |
 
 **Cross-sprint dependency:** G-SLOTS (#4) may unblock E2 integration tests → consider pulling into Sprint 5.
+
+**G-COMPLY-VERSIONS scope:** parse `requirements-dev.txt`, compare pinned vs.
+installed versions for each tool invoked by `scripts/compliance-check.sh`, log
+expected/actual, and exit non-zero on drift (or record versions in the
+Markdown report). Deferred from PR #35 (E3) review as a separate concern.
 
 **G-INSTALL-DOC gating:** do not start until all deps are tested and confirmed on-Pi
 (post-Sprint 6 + successful `scripts/compliance-check.sh` run). Current `docs/plan/install.md`
