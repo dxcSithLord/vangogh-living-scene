@@ -107,8 +107,12 @@ def validate_config(config: dict[str, Any], project_root: Path) -> list[str]:
             errors.append(f"'{key}' must be {expected_type.__name__}, got: {type(value).__name__}")
             continue
 
-        # All _RANGE_CHECKS entries use int or float; explicit guard for mypy
+        # Defensive guard for schema drift; do not silently skip validation.
         if not isinstance(value, (int, float)):
+            errors.append(
+                f"Internal validator schema error for '{key}': "
+                f"_RANGE_CHECKS must use numeric types, got {type(value).__name__}"
+            )
             continue
         num = float(value)
         if min_val is not None and num < min_val:
