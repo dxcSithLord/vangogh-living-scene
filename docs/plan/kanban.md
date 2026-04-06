@@ -30,7 +30,7 @@ Running totals against `docs/ci-baseline.md`:
 |---|---:|---:|---:|
 | ruff format files | 11 | 0 | −11 |
 | ruff lint findings | 45 | 29 | −16 |
-| mypy strict errors | 23 | 3 | −20 |
+| mypy strict errors | 23 | 0 | −23 |
 | bandit (medium+) | 0 | 0 | — |
 | pip-audit CVEs | 0 | 0 | — |
 
@@ -39,21 +39,11 @@ Running totals against `docs/ci-baseline.md`:
 | ID | Title | Status | PRs |
 |---|---|---|---|
 | T1 | Ruff autofix (format + --fix safe rules) | ✅ Done | #37 |
-| T2 | Ruff lint (non-autofix) — one sub-PR per rule family | Todo | — |
-| T3 | Mypy strict fixes — per module | 🟡 In progress (3 errors remaining) | #38, #39 merged; final slice next |
+| T2 | Ruff lint (non-autofix) — one sub-PR per rule family | 🟡 In progress | — |
+| T3 | Mypy strict fixes — per module | ✅ Done | #38, #39, #40 |
 | T4 | Bandit findings — by severity/module | ✅ Done (already clean per baseline) | — |
 | T5 | Pip-audit CVE dep bumps | ✅ Done (already clean per baseline) | — |
 | T6 | Flip continue-on-error → false across all workflows | 🔒 Blocked on T2+T3 | — |
-
-### T3 remaining (3 mypy strict errors)
-
-One 1-file slice per error — can be bundled if trivial:
-
-| File | Error | Error code |
-|---|---|---|
-| `src/config_validator.py:110` | Argument 1 to `float` has incompatible type | arg-type |
-| `src/styler.py:99` | Returning `Any` from typed function | no-any-return |
-| `src/compositor.py:56` | Incompatible types in assignment (`Image` → `ImageFile` variable) | assignment |
 
 ### T2 scope (29 ruff lint findings, 11 rule codes)
 
@@ -105,7 +95,7 @@ in `src/styler.py` / `src/isolator.py`.
 
 | ID | Title | Branch | PR |
 |---|---|---|---|
-| T3 (final slice) | config_validator arg-type + styler no-any-return + compositor assignment | `sprint6/t3-final` | — |
+| T2 | Ruff lint non-autofix — rule-family sub-PRs | `sprint6/t2-*` | — |
 
 ---
 
@@ -115,6 +105,7 @@ Full history in `PLAN_HISTORY.md`.
 
 | ID | Title | PR | Merged |
 |---|---|---|---|
+| **T3** (final) | config_validator fail-fast guard + styler ndarray annotation + compositor Image.open split | #40 | 2026-04-06 |
 | **T3** (slice 2) | dict/Queue generics + `__future__` annotations + camera.py PLC0415 noqa | #39 | 2026-04-06 |
 | **T3** (slice 1) | define_slots TypedDict + mypy.ini cleanup + LANCZOS codebase-wide + DisplayProtocol + Pillow/numpy in dev deps | #38 | 2026-04-05 |
 | **T1** | Ruff autofix sweep (format + --fix, 45→32 lint) | #37 | 2026-04-05 |
