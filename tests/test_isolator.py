@@ -36,5 +36,6 @@ class TestBoundaryDimension:
             remove_background(img, session=None)
         except ValueError as exc:
             assert "too large" not in str(exc), "Should not reject image at exact limit"
-        except Exception:  # noqa: S110 — expected: no rembg session in CI
+        except (AttributeError, TypeError, RuntimeError):
+            # Expected: rembg raises when session is None or mocked in CI
             pass
