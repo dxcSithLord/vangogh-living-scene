@@ -74,7 +74,7 @@ Cards at the same level can run in parallel; work lower levels after higher.
 
 | Pri | ID | Title | Issues | Branch | Module(s) |
 |---|---|---|---|---|---|
-| **P1** | G-SLOTS | Missing slots JSON — app crashes on startup | #4 | `gap/g-slots-json` | `assets/`, `config_validator.py` |
+| ~~P1~~ | ~~G-SLOTS~~ | ~~Missing slots JSON~~ | ~~#4~~ | ✅ Done (#43) | — |
 | **P2** | G-GHOST | Ghost cache refresh + skip logic | #6 #7 | `gap/g-ghost-cache` | `presence.py`, `main.py` |
 | **P3** | G-RSS | Enforce `memory.rss_warning_mb` in main loop | #8 | `gap/g-rss-threshold` | `main.py` |
 | **P4** | G-CONFIG-EVT | Emit `CONFIG_VALIDATION_FAIL` security event + fix init order | #18 | `gap/g-config-evt` | `config_validator.py`, `security_log.py`, `main.py` |
@@ -126,6 +126,7 @@ Full history in `PLAN_HISTORY.md`.
 
 | ID | Title | PR | Merged |
 |---|---|---|---|
+| **G-SLOTS** | Initial cafe_terrace_slots.json (closes #4) | #43 | 2026-04-06 |
 | **T6** | Flip continue-on-error → false across all CI workflows | #42 | 2026-04-06 |
 | **T2** | Clear all 29 ruff lint findings (PLC0415 per-file-ignores, PLR thresholds, single-hit fixes) | #41 | 2026-04-06 |
 | **T3** (final) | config_validator fail-fast guard + styler ndarray annotation + compositor Image.open split | #40 | 2026-04-06 |
