@@ -29,7 +29,7 @@ Running totals against `docs/ci-baseline.md`:
 | Check | Baseline | Current | Delta |
 |---|---:|---:|---:|
 | ruff format files | 11 | 0 | −11 |
-| ruff lint findings | 45 | 29 | −16 |
+| ruff lint findings | 45 | 0 | −45 |
 | mypy strict errors | 23 | 0 | −23 |
 | bandit (medium+) | 0 | 0 | — |
 | pip-audit CVEs | 0 | 0 | — |
@@ -39,24 +39,16 @@ Running totals against `docs/ci-baseline.md`:
 | ID | Title | Status | PRs |
 |---|---|---|---|
 | T1 | Ruff autofix (format + --fix safe rules) | ✅ Done | #37 |
-| T2 | Ruff lint (non-autofix) — one sub-PR per rule family | 🟡 In progress | — |
+| T2 | Ruff lint (non-autofix) — all 29 findings cleared | ✅ Done | #41 |
 | T3 | Mypy strict fixes — per module | ✅ Done | #38, #39, #40 |
 | T4 | Bandit findings — by severity/module | ✅ Done (already clean per baseline) | — |
 | T5 | Pip-audit CVE dep bumps | ✅ Done (already clean per baseline) | — |
-| T6 | Flip continue-on-error → false across all workflows | 🔒 Blocked on T2+T3 | — |
+| T6 | Flip continue-on-error → false across all workflows | 🟡 Unblocked — ready | — |
 
-### T2 scope (29 ruff lint findings, 11 rule codes)
+### T6 scope
 
-Dominated by `PLC0415` (17 hits remaining — import-outside-top-level, the lazy
-hardware-dep pattern). 3 were suppressed in `camera.py` via `# noqa: PLC0415`
-as part of T3/#39 review follow-up. Split by rule family across sub-branches:
-
-| Count | Rule | Suggested approach |
-|---:|---|---|
-| 17 | PLC0415 | Add targeted `# noqa: PLC0415` with justification, or `lint.per-file-ignores` for modules using lazy imports |
-| 2 | PLR0912 | Refactor or `# noqa` with justification |
-| 2 | RUF001 | Replace en-dash with hyphen in log strings (or allow via config) |
-| 1 each | B905, E402, E501, PLR0915, PLR2004, RUF059, S110, T201 | One-line fixes |
+Flip `continue-on-error: true` → `false` in all CI workflow steps now that
+ruff format (0), ruff lint (0), and mypy strict (0) are all clean.
 
 ---
 
@@ -95,7 +87,7 @@ in `src/styler.py` / `src/isolator.py`.
 
 | ID | Title | Branch | PR |
 |---|---|---|---|
-| T2 | Ruff lint non-autofix — rule-family sub-PRs | `sprint6/t2-*` | — |
+| T6 | Flip continue-on-error → false | `sprint6/t6-enforce-ci` | — |
 
 ---
 
@@ -105,6 +97,7 @@ Full history in `PLAN_HISTORY.md`.
 
 | ID | Title | PR | Merged |
 |---|---|---|---|
+| **T2** | Clear all 29 ruff lint findings (PLC0415 per-file-ignores, PLR thresholds, single-hit fixes) | #41 | 2026-04-06 |
 | **T3** (final) | config_validator fail-fast guard + styler ndarray annotation + compositor Image.open split | #40 | 2026-04-06 |
 | **T3** (slice 2) | dict/Queue generics + `__future__` annotations + camera.py PLC0415 noqa | #39 | 2026-04-06 |
 | **T3** (slice 1) | define_slots TypedDict + mypy.ini cleanup + LANCZOS codebase-wide + DisplayProtocol + Pillow/numpy in dev deps | #38 | 2026-04-05 |
