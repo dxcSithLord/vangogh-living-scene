@@ -5,7 +5,7 @@
 > Before making code changes: confirm the sprint matches
 > `docs/plan/sprints.md` per CLAUDE.md "Before writing code" rule #3.
 
-Last reviewed: 2026-04-05
+Last reviewed: 2026-04-06 (Sprint 6 in progress)
 
 ---
 
@@ -20,38 +20,39 @@ Last reviewed: 2026-04-05
 
 ---
 
-## Current sprint: **Sprint 5 — CI completion**
+## Current sprint: **Sprint 6 — Triage & enforcement**
 
-### Todo (Sprint 5) — E1 merged, all three now unblocked
+Sprint 5 complete (E1/E2/E3/E4 all merged). T1–T5 can run in parallel; T6 is serial after.
 
-| ID | Title | Issues | Branch | Parallel? |
-|---|---|---|---|---|
-| E2 | conftest.py hardware-dep stubs | #25 | `ci/e2-conftest-hw-stubs` | ✅ with E3, E4 |
-| E3 | scripts/compliance-check.sh (PR-7) | #26 | `ci/e3-compliance-check-sh` | ✅ with E2, E4 |
-| E4 | Capture CI baselines → docs/ci-baseline.md | #27 | `ci/e4-baseline-capture` | ✅ with E2, E3 (benefits from E2 landing first for real pytest counts) |
+Running totals against `docs/ci-baseline.md`:
 
-### Backlog — Sprint 5
+| Check | Baseline | Current | Delta |
+|---|---:|---:|---:|
+| ruff format files | 11 | 0 | −11 |
+| ruff lint findings | 45 | 0 | −45 |
+| mypy strict errors | 23 | 0 | −23 |
+| bandit (medium+) | 0 | 0 | — |
+| pip-audit CVEs | 0 | 0 | — |
 
-_(empty — all Sprint 5 cards are in Todo)_
+### Status
 
----
-
-## Sprint 6 — Triage & enforcement (gated on E4)
-
-### Backlog
-
-| ID | Title | Source | Parallel? |
+| ID | Title | Status | PRs |
 |---|---|---|---|
-| T1 | Ruff autofix (format + --fix safe rules) | E4 baseline | ✅ |
-| T2 | Ruff lint (non-autofix) — one sub-PR per rule family | E4 baseline | ✅ sub-branches |
-| T3 | Mypy strict fixes — per module | E4 baseline | ✅ per module |
-| T4 | Bandit findings — by severity/module | E4 baseline | ✅ |
-| T5 | Pip-audit CVE dep bumps | E4 baseline | ✅ |
-| T6 | Flip continue-on-error → false across all workflows | — | **SERIAL** after T1–T5 |
+| T1 | Ruff autofix (format + --fix safe rules) | ✅ Done | #37 |
+| T2 | Ruff lint (non-autofix) — all 29 findings cleared | ✅ Done | #41 |
+| T3 | Mypy strict fixes — per module | ✅ Done | #38, #39, #40 |
+| T4 | Bandit findings — by severity/module | ✅ Done (already clean per baseline) | — |
+| T5 | Pip-audit CVE dep bumps | ✅ Done (already clean per baseline) | — |
+| T6 | Flip continue-on-error → false across all workflows | 🟡 Unblocked — ready | — |
+
+### T6 scope
+
+Flip `continue-on-error: true` → `false` in all CI workflow steps now that
+ruff format (0), ruff lint (0), and mypy strict (0) are all clean.
 
 ---
 
-## Sprint 7 — Gap backlog (runnable in parallel with Sprints 5/6)
+## Sprint 7 — Gap backlog (runnable in parallel with Sprint 6)
 
 ### Backlog
 
@@ -63,14 +64,30 @@ _(empty — all Sprint 5 cards are in Todo)_
 | G-RSS | Enforce `memory.rss_warning_mb` in main | #8 | `gap/g-rss-threshold` | `main.py` |
 | G-CONFIG-EVT | Emit `CONFIG_VALIDATION_FAIL` security event | #18 | `gap/g-config-evt` | `config_validator.py`, `security_log.py` |
 | G-VERIFY | Verification tasks (read-only, may spawn follow-ups) | #11 #13 #20 | `gap/g-verify-*` | tests + docs |
+| G-INSTALL-DOC | Refresh `docs/plan/install.md` with confirmed deps | — | `gap/g-install-doc` | docs only |
+| G-COMPLY-VERSIONS | Pre-flight tool-version check in `compliance-check.sh` | — | `gap/g-comply-versions` | `scripts/`, `requirements-dev.txt` |
 
 **Cross-sprint dependency:** G-SLOTS (#4) may unblock E2 integration tests → consider pulling into Sprint 5.
+
+**G-COMPLY-VERSIONS scope:** parse `requirements-dev.txt`, compare pinned vs.
+installed versions for each tool invoked by `scripts/compliance-check.sh`, log
+expected/actual, and exit non-zero on drift (or record versions in the
+Markdown report). Deferred from PR #35 (E3) review as a separate concern.
+
+**G-INSTALL-DOC gating:** do not start until all deps are tested and confirmed on-Pi
+(post-Sprint 6 + successful `scripts/compliance-check.sh` run). Current `docs/plan/install.md`
+is stale: uses `venv` instead of `.venv`, unpinned `pip install`, `tflite-runtime` instead of
+`ai_edge_litert`, and `curl -L` without SHA-256 for model downloads. Authoritative sources to
+sync against: `install.sh`, `requirements.lock`, `requirements-ci.txt`, and the real imports
+in `src/styler.py` / `src/isolator.py`.
 
 ---
 
 ## In-progress
 
-_(empty — populate as branches are created)_
+| ID | Title | Branch | PR |
+|---|---|---|---|
+| T6 | Flip continue-on-error → false | `sprint6/t6-enforce-ci` | — |
 
 ---
 
@@ -80,6 +97,14 @@ Full history in `PLAN_HISTORY.md`.
 
 | ID | Title | PR | Merged |
 |---|---|---|---|
+| **T2** | Clear all 29 ruff lint findings (PLC0415 per-file-ignores, PLR thresholds, single-hit fixes) | #41 | 2026-04-06 |
+| **T3** (final) | config_validator fail-fast guard + styler ndarray annotation + compositor Image.open split | #40 | 2026-04-06 |
+| **T3** (slice 2) | dict/Queue generics + `__future__` annotations + camera.py PLC0415 noqa | #39 | 2026-04-06 |
+| **T3** (slice 1) | define_slots TypedDict + mypy.ini cleanup + LANCZOS codebase-wide + DisplayProtocol + Pillow/numpy in dev deps | #38 | 2026-04-05 |
+| **T1** | Ruff autofix sweep (format + --fix, 45→32 lint) | #37 | 2026-04-05 |
+| **E3** | scripts/compliance-check.sh (closes #26) | #35 | 2026-04-05 |
+| **E4** | CI baselines → docs/ci-baseline.md (closes #27) | #36 | 2026-04-05 |
+| **E2** | conftest.py hardware-dep stubs (closes #25) | #34 | 2026-04-05 |
 | **E1** | Pin GH Actions to SHAs + Dependabot (closes #24) | #29 | 2026-04-05 |
 | — | docs: kanban restructure + README | #28 | 2026-04-05 |
 | CI-3 | security workflow (PR-3) | #23 | 2026-04-05 |

@@ -5,26 +5,28 @@
 > Completed work → `PLAN_HISTORY.md`.
 > Sprint definitions → `docs/plan/sprints.md`.
 
-Version: 3.0
-Last reviewed: 2026-04-05
+Version: 3.1
+Last reviewed: 2026-04-06
 
 ---
 
 ## Current sprint
 
-**Sprint 5 — CI completion** — blocker cleared, 3 cards in flight
+**Sprint 6 — Triage & enforcement** — T1–T5 done, T6 ready
 
-E1 (#24) merged as #29 on 2026-04-05. E2, E3, E4 are now unblocked and
-runnable in parallel branches.
+All lint/type findings cleared: ruff format 0, ruff lint 0, mypy strict 0.
+T6 (flip `continue-on-error → false`) is the final card.
 
 Top of kanban (snapshot — authoritative copy in `docs/plan/kanban.md`):
 
-| Status | ID | Title | Issues |
+| Status | ID | Title | PRs |
 |---|---|---|---|
-| Todo | E2 | conftest.py hardware-dep stubs | #25 |
-| Todo | E3 | scripts/compliance-check.sh | #26 |
-| Todo | E4 | Capture CI baselines | #27 |
-| Done (recent) | E1 | Pin GH Actions to SHAs + Dependabot | #24 → PR #29 |
+| Done | T1 | Ruff autofix sweep | #37 |
+| Done | T2 | Ruff lint non-autofix (all 29 cleared) | #41 |
+| Done | T3 | Mypy strict fixes (all 23 cleared) | #38, #39, #40 |
+| Done | T4 | Bandit (already clean) | — |
+| Done | T5 | Pip-audit (already clean) | ��� |
+| Ready | T6 | Flip continue-on-error → false | — |
 
 ---
 
