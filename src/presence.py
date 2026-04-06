@@ -45,7 +45,14 @@ EventCallback = Callable[[Event, Image.Image | None, bool], None]
 
 
 class _GhostCache:
-    """TTL cache for the last crop, enabling fast re-entry without re-processing."""
+    """TTL cache for the last crop, enabling fast re-entry without re-processing.
+
+    This cache tracks *raw crops* and gates the ghost_hit signal sent to the
+    event callback. The Application class in main.py maintains a separate cache
+    of *styled images* (_last_styled) to avoid re-running the expensive
+    isolator and styler stages. The two caches work together: presence decides
+    whether a re-entry qualifies as a ghost hit; main decides what to display.
+    """
 
     def __init__(self, ttl_seconds: float) -> None:
         self._ttl = ttl_seconds

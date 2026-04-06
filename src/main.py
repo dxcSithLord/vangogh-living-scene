@@ -175,7 +175,14 @@ class Application:
             self._active_slot_id = None
 
     def _handle_exited(self) -> None:
-        """Remove the subject from the scene and refresh the display."""
+        """Remove the subject from the scene and refresh the display.
+
+        Note: _last_styled is intentionally retained for ghost re-entry.
+        The presence module's ghost cache TTL gates whether ghost_hit=True
+        is signalled on re-entry. If the TTL expires, ghost_hit will be
+        False and _last_styled will be overwritten by the next full pipeline
+        run. This avoids clearing the cache here only to lose the perf benefit.
+        """
         if self._active_slot_id is None:
             return
 
