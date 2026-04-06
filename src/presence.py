@@ -4,6 +4,8 @@ Consumes detections from the camera queue and emits clean
 ENTERED/EXITED events with debounce logic and ghost re-entry caching.
 """
 
+from __future__ import annotations
+
 import argparse
 import enum
 import logging
@@ -12,9 +14,12 @@ import sys
 import time
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from PIL import Image
+
+if TYPE_CHECKING:
+    from src.camera import Detection
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +94,7 @@ class PresenceManager:
     def __init__(
         self,
         config: dict[str, Any],
-        detection_queue: queue.Queue,
+        detection_queue: queue.Queue[Detection],
         event_callback: EventCallback,
     ) -> None:
         pres_cfg = config["presence"]
@@ -237,7 +242,7 @@ def _run_standalone(config_path: Path) -> None:
     """Standalone test with camera: prints ENTERED/EXITED events."""
     import yaml
 
-    from src.camera import Camera, Detection
+    from src.camera import Camera
 
     with config_path.open("r", encoding="utf-8") as f:
         config = yaml.safe_load(f)
