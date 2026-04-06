@@ -105,16 +105,22 @@ class Application:
 
         # Track which slot is currently occupied (single-subject for now).
         self._active_slot_id: str | None = None
+        # Cache last styled image for ghost re-entry (skip isolator+styler).
+        self._last_styled: Image.Image | None = None
 
-    def _on_presence_event(self, event: Event, crop: Image.Image | None) -> None:
+    def _on_presence_event(self, event: Event, crop: Image.Image | None, ghost_hit: bool) -> None:
         """Handle ENTERED/EXITED events from the presence state machine."""
         if event == Event.ENTERED and crop is not None:
-            self._handle_entered(crop)
+            self._handle_entered(crop, ghost_hit)
         elif event == Event.EXITED:
             self._handle_exited()
 
-    def _handle_entered(self, crop: Image.Image) -> None:
-        """Process a new subject: isolate → style → composite → display."""
+    def _handle_entered(self, crop: Image.Image, ghost_hit: bool) -> None:
+        """Process a new subject: isolate → style → composite → display.
+
+        On ghost re-entry, reuse the cached styled image to skip the
+        expensive isolator and styler stages.
+        """
         slot = self._slot_manager.assign_slot()
         if slot is None:
             logger.warning("No free slots — ignoring ENTERED event")
@@ -124,17 +130,26 @@ class Application:
         logger.info("Processing subject for slot '%s' (RSS: %.0f MB)", slot.id, _rss_mb())
 
         try:
-            # 1. Remove background
-            isolated = remove_background(crop, session=self._rembg_session)
-            logger.info("Isolation complete (RSS: %.0f MB)", _rss_mb())
+            if ghost_hit and self._last_styled is not None:
+                # Ghost re-entry — skip isolator + styler
+                styled = self._last_styled
+                logger.info("Ghost re-entry — reusing cached styled image")
+            else:
+                # Full pipeline
+                # 1. Remove background
+                isolated = remove_background(crop, session=self._rembg_session)
+                logger.info("Isolation complete (RSS: %.0f MB)", _rss_mb())
 
-            # 2. Apply style
-            styled = self._styler.stylize(isolated)
-            logger.info("Style transfer complete (RSS: %.0f MB)", _rss_mb())
+                # 2. Apply style
+                styled = self._styler.stylize(isolated)
+                logger.info("Style transfer complete (RSS: %.0f MB)", _rss_mb())
 
-            # Free intermediate images
-            del isolated
-            gc.collect()
+                # Free intermediate image
+                del isolated
+                gc.collect()
+
+                # Cache the styled result for ghost re-entry
+                self._last_styled = styled
 
             # 3. Composite into scene
             self._compositor.add_figure(slot, styled)
@@ -145,8 +160,8 @@ class Application:
             self._display.show(scene)
             logger.info("Display updated with subject in slot '%s'", slot.id)
 
-            # Free scene image
-            del scene, styled
+            # Free scene image (but keep styled in cache)
+            del scene
             gc.collect()
 
         except Exception:

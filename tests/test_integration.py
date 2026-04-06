@@ -175,10 +175,10 @@ class TestPresenceIntegration:
     ) -> None:
         """Feed detections into the presence manager and verify ENTERED/EXITED."""
         det_queue: queue.Queue[Detection] = queue.Queue(maxsize=50)
-        events: list[tuple[Event, Image.Image | None]] = []
+        events: list[tuple[Event, Image.Image | None, bool]] = []
 
-        def on_event(event: Event, crop: Image.Image | None) -> None:
-            events.append((event, crop))
+        def on_event(event: Event, crop: Image.Image | None, ghost_hit: bool) -> None:
+            events.append((event, crop, ghost_hit))
 
         presence = PresenceManager(
             config=integration_config,
@@ -196,6 +196,7 @@ class TestPresenceIntegration:
         assert len(events) == 1
         assert events[0][0] == Event.ENTERED
         assert events[0][1] is not None
+        assert events[0][2] is False  # not a ghost re-entry
         assert presence.state == State.PRESENT
 
         # Feed enough misses to trigger EXITED (exiting_frames=3)
@@ -212,10 +213,10 @@ class TestPresenceIntegration:
     ) -> None:
         """Detection during EXITING should cancel the exit."""
         det_queue: queue.Queue[Detection] = queue.Queue(maxsize=50)
-        events: list[tuple[Event, Image.Image | None]] = []
+        events: list[tuple[Event, Image.Image | None, bool]] = []
 
-        def on_event(event: Event, crop: Image.Image | None) -> None:
-            events.append((event, crop))
+        def on_event(event: Event, crop: Image.Image | None, ghost_hit: bool) -> None:
+            events.append((event, crop, ghost_hit))
 
         presence = PresenceManager(
             config=integration_config,

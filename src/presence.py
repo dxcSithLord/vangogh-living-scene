@@ -40,8 +40,8 @@ class Event(enum.Enum):
     EXITED = "EXITED"
 
 
-# Type alias for event callbacks: receives (event, optional crop image).
-EventCallback = Callable[[Event, Image.Image | None], None]
+# Type alias for event callbacks: receives (event, optional crop image, ghost_hit flag).
+EventCallback = Callable[[Event, Image.Image | None, bool], None]
 
 
 class _GhostCache:
@@ -188,14 +188,11 @@ class PresenceManager:
                 if self._consecutive_detections >= self._entering_threshold:
                     self._state = State.PRESENT
                     self._consecutive_misses = 0
-                    crop = self._last_crop
-                    # Check ghost cache for fast re-entry
-                    ghost = self._ghost.retrieve()
-                    if ghost is not None:
-                        logger.info("Ghost re-entry — using cached crop")
-                        crop = ghost
+                    ghost_hit = self._ghost.retrieve() is not None
+                    if ghost_hit:
+                        logger.info("Ghost re-entry detected — signalling cache hit")
                     logger.info("ENTERING → PRESENT — firing ENTERED")
-                    self._callback(Event.ENTERED, crop)
+                    self._callback(Event.ENTERED, self._last_crop, ghost_hit)
             else:
                 # Gap during entering — reset
                 self._consecutive_detections = 0
@@ -204,8 +201,10 @@ class PresenceManager:
 
         elif self._state == State.PRESENT:
             if detected:
-                # Still here — update last crop
+                # Still here — keep ghost cache fresh with latest crop
                 self._consecutive_misses = 0
+                if self._last_crop is not None:
+                    self._ghost.store(self._last_crop)
             else:
                 self._consecutive_misses = 1
                 self._state = State.EXITING
@@ -232,7 +231,7 @@ class PresenceManager:
                     self._last_crop = None
                     self._consecutive_detections = 0
                     logger.info("EXITING → ABSENT — firing EXITED")
-                    self._callback(Event.EXITED, None)
+                    self._callback(Event.EXITED, None, False)
 
         if self._state != prev:
             logger.debug("State: %s → %s", prev.value, self._state.value)
@@ -249,9 +248,10 @@ def _run_standalone(config_path: Path) -> None:
 
     det_queue: queue.Queue[Detection] = queue.Queue(maxsize=50)
 
-    def on_event(event: Event, crop: Image.Image | None) -> None:
+    def on_event(event: Event, crop: Image.Image | None, ghost_hit: bool) -> None:
         crop_info = f"{crop.width}x{crop.height}" if crop else "no crop"
-        logger.info("EVENT: %s (%s)", event.value, crop_info)
+        ghost_info = " [ghost]" if ghost_hit else ""
+        logger.info("EVENT: %s (%s%s)", event.value, crop_info, ghost_info)
 
     camera = Camera(config=config, output_queue=det_queue)
     presence = PresenceManager(
