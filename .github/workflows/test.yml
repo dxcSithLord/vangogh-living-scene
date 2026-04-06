@@ -1,14 +1,13 @@
 # Test workflow — Van Gogh Living Scene
-# Runs pytest with coverage in report-only mode.
+# Runs pytest with coverage — failures prevent merge.
 # Standards: NIST SA-11 (SEC-07 unit test coverage).
 #
 # Hardware-dependent tests (@pytest.mark.hardware) are skipped on
 # GitHub runners. Full compliance testing runs on the target Pi via
 # scripts/compliance-check.sh (see docs/release-checklist.md in PR-7).
 #
-# Coverage gating is intentionally disabled at rollout (per decision
-# 2026-04-05). A baseline will be established, then a floor applied
-# in a follow-up PR.
+# Coverage gating is intentionally disabled (per decision 2026-04-05).
+# A baseline will be established, then a floor applied in a follow-up PR.
 
 name: test
 
@@ -45,7 +44,6 @@ jobs:
 
       - name: Run pytest with coverage
         id: pytest
-        continue-on-error: true
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: |
@@ -92,7 +90,7 @@ jobs:
             echo ""
             echo "pytest outcome: **${{ steps.pytest.outcome }}**"
             echo ""
-            echo "Report-only mode — artifacts: coverage-xml, coverage-html, pytest-junit."
+            echo "Artifacts: coverage-xml, coverage-html, pytest-junit."
             echo ""
             echo "Hardware-dependent tests skipped (GitHub runners have no IMX500/Inky)."
           } >> "$GITHUB_STEP_SUMMARY"

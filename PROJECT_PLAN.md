@@ -12,10 +12,10 @@ Last reviewed: 2026-04-06
 
 ## Current sprint
 
-**Sprint 6 — Triage & enforcement** — T1–T5 done, T6 ready
+**Sprint 6 — Triage & enforcement** — Complete
 
 All lint/type findings cleared: ruff format 0, ruff lint 0, mypy strict 0.
-T6 (flip `continue-on-error → false`) is the final card.
+All CI checks now blocking (continue-on-error removed).
 
 Top of kanban (snapshot — authoritative copy in `docs/plan/kanban.md`):
 
@@ -26,7 +26,7 @@ Top of kanban (snapshot — authoritative copy in `docs/plan/kanban.md`):
 | Done | T3 | Mypy strict fixes (all 23 cleared) | #38, #39, #40 |
 | Done | T4 | Bandit (already clean) | — |
 | Done | T5 | Pip-audit (already clean) | ��� |
-| Ready | T6 | Flip continue-on-error → false | — |
+| Done | T6 | Flip continue-on-error → false | #TBD |
 
 ---
 
