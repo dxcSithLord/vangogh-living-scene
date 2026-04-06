@@ -2,9 +2,7 @@
 # Enforces coding standards from CLAUDE.md via ruff + mypy.
 # Standards: NIST SA-11, PEP 604, OWASP A04/A05.
 #
-# Initial rollout is report-only (continue-on-error). Once existing
-# violations are cleared in scoped follow-up PRs, flip the flags to
-# make this workflow blocking.
+# All checks are blocking — failures prevent merge.
 
 name: lint
 
@@ -41,17 +39,14 @@ jobs:
 
       - name: Ruff format check
         id: ruff-format
-        continue-on-error: true
         run: ruff format --check .
 
       - name: Ruff lint
         id: ruff-lint
-        continue-on-error: true
         run: ruff check . --output-format=github
 
       - name: Mypy strict type check
         id: mypy
-        continue-on-error: true
         run: mypy src tools
 
       - name: Summarise lint results
@@ -66,5 +61,5 @@ jobs:
             echo "| ruff check | ${{ steps.ruff-lint.outcome }} |"
             echo "| mypy src tools | ${{ steps.mypy.outcome }} |"
             echo ""
-            echo "Report-only mode — see individual step logs for details."
+            echo "All checks are blocking — failures prevent merge."
           } >> "$GITHUB_STEP_SUMMARY"

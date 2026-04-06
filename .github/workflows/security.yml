@@ -2,9 +2,7 @@
 # Runs static and supply-chain security checks on every push/PR.
 # Standards: NIST SA-11 (developer security testing), OWASP A04/A05/A06.
 #
-# Initial rollout is report-only (continue-on-error). Once existing
-# findings are triaged in scoped follow-up PRs, flip the flags to
-# make this workflow blocking.
+# All checks are blocking — failures prevent merge.
 
 name: security
 
@@ -41,7 +39,6 @@ jobs:
 
       - name: Bandit SAST
         id: bandit
-        continue-on-error: true
         run: |
           bandit -c .bandit -r src tools \
             --severity-level medium --confidence-level medium \
@@ -49,17 +46,14 @@ jobs:
 
       - name: Pip-audit dependency CVE scan
         id: pip-audit
-        continue-on-error: true
         run: pip-audit -r requirements-ci.txt --format json --output pip-audit-report.json
 
       - name: Yamllint
         id: yamllint
-        continue-on-error: true
         run: yamllint .
 
       - name: Install actionlint
         id: actionlint-install
-        continue-on-error: true
         env:
           ACTIONLINT_VERSION: "1.7.12"
           ACTIONLINT_SHA256: "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8"
@@ -74,7 +68,6 @@ jobs:
 
       - name: Actionlint workflow check
         id: actionlint
-        continue-on-error: true
         run: ${{ steps.actionlint-install.outputs.path }} -color
 
       - name: Upload bandit report
@@ -108,5 +101,5 @@ jobs:
             echo "| yamllint | ${{ steps.yamllint.outcome }} |"
             echo "| actionlint | ${{ steps.actionlint.outcome }} |"
             echo ""
-            echo "Report-only mode — see individual step logs and uploaded artefacts."
+            echo "All checks are blocking — failures prevent merge."
           } >> "$GITHUB_STEP_SUMMARY"

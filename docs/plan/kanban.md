@@ -43,7 +43,7 @@ Running totals against `docs/ci-baseline.md`:
 | T3 | Mypy strict fixes — per module | ✅ Done | #38, #39, #40 |
 | T4 | Bandit findings — by severity/module | ✅ Done (already clean per baseline) | — |
 | T5 | Pip-audit CVE dep bumps | ✅ Done (already clean per baseline) | — |
-| T6 | Flip continue-on-error → false across all workflows | 🟡 Unblocked — ready | — |
+| T6 | Flip continue-on-error → false across all workflows | ✅ Done | #TBD |
 
 ### T6 scope
 
@@ -85,9 +85,7 @@ in `src/styler.py` / `src/isolator.py`.
 
 ## In-progress
 
-| ID | Title | Branch | PR |
-|---|---|---|---|
-| T6 | Flip continue-on-error → false | `sprint6/t6-enforce-ci` | — |
+(none)
 
 ---
 
@@ -97,6 +95,7 @@ Full history in `PLAN_HISTORY.md`.
 
 | ID | Title | PR | Merged |
 |---|---|---|---|
+| **T6** | Flip continue-on-error → false across all CI workflows | #TBD | 2026-04-06 |
 | **T2** | Clear all 29 ruff lint findings (PLC0415 per-file-ignores, PLR thresholds, single-hit fixes) | #41 | 2026-04-06 |
 | **T3** (final) | config_validator fail-fast guard + styler ndarray annotation + compositor Image.open split | #40 | 2026-04-06 |
 | **T3** (slice 2) | dict/Queue generics + `__future__` annotations + camera.py PLC0415 noqa | #39 | 2026-04-06 |
