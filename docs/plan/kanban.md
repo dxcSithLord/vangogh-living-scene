@@ -5,7 +5,7 @@
 > Before making code changes: confirm the sprint matches
 > `docs/plan/sprints.md` per CLAUDE.md "Before writing code" rule #3.
 
-Last reviewed: 2026-04-06 (Sprint 6 in progress)
+Last reviewed: 2026-04-06 (Sprint 6 complete, Sprint 7 ready)
 
 ---
 
@@ -13,7 +13,7 @@ Last reviewed: 2026-04-06 (Sprint 6 in progress)
 
 - [ ] Branch pushed with **signed commits** (GPG, noreply UID)
 - [ ] PR opens with `Closes #N` for every issue the card resolves
-- [ ] CI workflows green (or report-only findings reviewed)
+- [ ] CI workflows green (all checks are blocking)
 - [ ] New files include security/standards header comment where applicable
 - [ ] Any new GitHub Action pinned to full commit SHA (post-#24)
 - [ ] Card moved to `Done` in this file at PR-merge time
@@ -52,33 +52,64 @@ ruff format (0), ruff lint (0), and mypy strict (0) are all clean.
 
 ---
 
-## Sprint 7 — Gap backlog (runnable in parallel with Sprint 6)
+## Current sprint: **Sprint 7 — Gap backlog**
 
-### Backlog
+### Priority scheme
 
-| ID | Title | Issues combined | Branch | Module(s) |
-|---|---|---|---|---|
-| G-DOC | Docs cleanup (omnibus or per-issue) | #3 #5 #9 #10 #12 #14 #15 #19 | `gap/g-doc-*` | docs only |
-| G-GHOST | Ghost cache refresh + skip logic | #6 #7 | `gap/g-ghost-cache` | `presence.py` |
-| G-SLOTS | Missing slots JSON (may block E2) | #4 | `gap/g-slots-json` | `assets/`, `config_validator.py` |
-| G-RSS | Enforce `memory.rss_warning_mb` in main | #8 | `gap/g-rss-threshold` | `main.py` |
-| G-CONFIG-EVT | Emit `CONFIG_VALIDATION_FAIL` security event | #18 | `gap/g-config-evt` | `config_validator.py`, `security_log.py` |
-| G-VERIFY | Verification tasks (read-only, may spawn follow-ups) | #11 #13 #20 | `gap/g-verify-*` | tests + docs |
-| G-INSTALL-DOC | Refresh `docs/plan/install.md` with confirmed deps | — | `gap/g-install-doc` | docs only |
-| G-COMPLY-VERSIONS | Pre-flight tool-version check in `compliance-check.sh` | — | `gap/g-comply-versions` | `scripts/`, `requirements-dev.txt` |
+| Level | Meaning | Guidance |
+|-------|---------|----------|
+| **P1** | Startup blocker | App cannot run. Fix before any integration work. |
+| **P2** | Runtime bug | Incorrect behaviour affecting correctness or performance. |
+| **P3** | Safety / memory | Risk of OOM or resource exhaustion on 512 MB device. |
+| **P4** | Security compliance | Audit-required event or control not yet wired up. |
+| **P5** | Verification | Read-only investigation; may spawn follow-up cards. |
+| **P6** | Tooling hardening | CI/script improvements; no runtime impact. |
+| **P7** | Documentation | Docs-only fixes; no code or runtime impact. |
+| **P8** | Gated / deferred | Blocked on external prerequisite (e.g. on-Pi run). |
 
-**Cross-sprint dependency:** G-SLOTS (#4) may unblock E2 integration tests → consider pulling into Sprint 5.
+New cards should be assigned a priority level using this scheme.
+Cards at the same level can run in parallel; work lower levels after higher.
 
-**G-COMPLY-VERSIONS scope:** parse `requirements-dev.txt`, compare pinned vs.
+### Backlog (ordered by priority)
+
+| Pri | ID | Title | Issues | Branch | Module(s) |
+|---|---|---|---|---|---|
+| **P1** | G-SLOTS | Missing slots JSON — app crashes on startup | #4 | `gap/g-slots-json` | `assets/`, `config_validator.py` |
+| **P2** | G-GHOST | Ghost cache refresh + skip logic | #6 #7 | `gap/g-ghost-cache` | `presence.py`, `main.py` |
+| **P3** | G-RSS | Enforce `memory.rss_warning_mb` in main loop | #8 | `gap/g-rss-threshold` | `main.py` |
+| **P4** | G-CONFIG-EVT | Emit `CONFIG_VALIDATION_FAIL` security event + fix init order | #18 | `gap/g-config-evt` | `config_validator.py`, `security_log.py`, `main.py` |
+| **P5** | G-VERIFY | Verification tasks (read-only, may spawn follow-ups) | #11 #13 #20 | `gap/g-verify-*` | tests + docs |
+| **P6** | G-COMPLY-VERSIONS | Pre-flight tool-version check in `compliance-check.sh` | — | `gap/g-comply-versions` | `scripts/`, `requirements-dev.txt` |
+| **P7** | G-DOC | Docs cleanup (omnibus or per-issue) | #3 #5 #9 #10 #12 #14 #15 #19 | `gap/g-doc-*` | docs only |
+| **P8** | G-INSTALL-DOC | Refresh `docs/plan/install.md` with confirmed deps | — | `gap/g-install-doc` | docs only |
+
+### Card notes
+
+**G-SLOTS (P1):** `cafe_terrace_slots.json` does not exist. `config_validator.py`
+calls `sys.exit(1)` at startup. Complete blocker for any runtime or integration testing.
+
+**G-GHOST (P2):** Two bugs — #6: `_ghost.store()` only fires on EXITING→ABSENT,
+so the cached crop is stale if the subject was present for minutes. #7: `main.py`
+runs full isolator+styler on cache hit — zero performance benefit from the cache.
+
+**G-RSS (P3):** `main.py` logs RSS at multiple stages but never compares against
+the configured 460 MB threshold. Only `styler.py` warns. On a 512 MB device with
+~50 MB headroom, the main loop must also enforce the threshold.
+
+**G-CONFIG-EVT (P4):** Two-part fix — (1) `validate_or_exit()` never calls
+`log_security_event()`, and (2) security logger initialises *after* config
+validation in `main.py`, so the event would fail even if emitted.
+
+**G-COMPLY-VERSIONS (P6):** Parse `requirements-dev.txt`, compare pinned vs
 installed versions for each tool invoked by `scripts/compliance-check.sh`, log
-expected/actual, and exit non-zero on drift (or record versions in the
-Markdown report). Deferred from PR #35 (E3) review as a separate concern.
+expected/actual, and exit non-zero on drift. Deferred from PR #35 (E3) review.
 
-**G-INSTALL-DOC gating:** do not start until all deps are tested and confirmed on-Pi
-(post-Sprint 6 + successful `scripts/compliance-check.sh` run). Current `docs/plan/install.md`
-is stale: uses `venv` instead of `.venv`, unpinned `pip install`, `tflite-runtime` instead of
-`ai_edge_litert`, and `curl -L` without SHA-256 for model downloads. Authoritative sources to
-sync against: `install.sh`, `requirements.lock`, `requirements-ci.txt`, and the real imports
+**G-INSTALL-DOC (P8):** Gated — do not start until all deps are tested and
+confirmed on-Pi (successful `scripts/compliance-check.sh` run). Current
+`docs/plan/install.md` is stale: uses `venv` instead of `.venv`, unpinned
+`pip install`, `tflite-runtime` instead of `ai_edge_litert`, and `curl -L`
+without SHA-256 for model downloads. Authoritative sources to sync against:
+`install.sh`, `requirements.lock`, `requirements-ci.txt`, and the real imports
 in `src/styler.py` / `src/isolator.py`.
 
 ---

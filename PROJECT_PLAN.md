@@ -5,28 +5,31 @@
 > Completed work → `PLAN_HISTORY.md`.
 > Sprint definitions → `docs/plan/sprints.md`.
 
-Version: 3.1
+Version: 3.2
 Last reviewed: 2026-04-06
 
 ---
 
 ## Current sprint
 
-**Sprint 6 — Triage & enforcement** — Complete
+**Sprint 7 — Gap backlog** — 8 cards, prioritised P1–P8
 
-All lint/type findings cleared: ruff format 0, ruff lint 0, mypy strict 0.
-All CI checks now blocking (continue-on-error removed).
+Sprint 6 complete (all CI checks blocking). Sprint 7 addresses gap-analysis
+findings ordered by runtime impact: startup blockers first, then bugs,
+safety, security compliance, verification, tooling, and docs last.
 
 Top of kanban (snapshot — authoritative copy in `docs/plan/kanban.md`):
 
-| Status | ID | Title | PRs |
+| Pri | ID | Title | Issues |
 |---|---|---|---|
-| Done | T1 | Ruff autofix sweep | #37 |
-| Done | T2 | Ruff lint non-autofix (all 29 cleared) | #41 |
-| Done | T3 | Mypy strict fixes (all 23 cleared) | #38, #39, #40 |
-| Done | T4 | Bandit (already clean) | — |
-| Done | T5 | Pip-audit (already clean) | ��� |
-| Done | T6 | Flip continue-on-error → false | #42 |
+| P1 | G-SLOTS | Missing slots JSON — app crashes on startup | #4 |
+| P2 | G-GHOST | Ghost cache refresh + skip logic | #6 #7 |
+| P3 | G-RSS | Enforce `memory.rss_warning_mb` in main loop | #8 |
+| P4 | G-CONFIG-EVT | Emit `CONFIG_VALIDATION_FAIL` + fix init order | #18 |
+| P5 | G-VERIFY | Verification tasks (read-only) | #11 #13 #20 |
+| P6 | G-COMPLY-VERSIONS | Pre-flight tool-version check | — |
+| P7 | G-DOC | Docs cleanup | #3 #5 #9 #10 #12 #14 #15 #19 |
+| P8 | G-INSTALL-DOC | Refresh install.md (gated on-Pi run) | — |
 
 ---
 
