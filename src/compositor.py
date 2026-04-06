@@ -50,10 +50,9 @@ class Compositor:
         if not any(header.startswith(magic) for magic in _IMAGE_MAGIC.values()):
             raise ValueError(f"File is not a recognised image format: {path.name}")
 
-        image = Image.open(path)
-        image.load()  # force full decode
-        if image.mode != "RGB":
-            image = image.convert("RGB")
+        loaded = Image.open(path)
+        loaded.load()  # force full decode
+        image: Image.Image = loaded.convert("RGB") if loaded.mode != "RGB" else loaded
 
         logger.info("Loaded background: %s (%dx%d)", path.name, image.width, image.height)
         return image

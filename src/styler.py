@@ -86,7 +86,7 @@ class Styler:
 
         interpreter.set_tensor(input_details[0]["index"], style_array)
         interpreter.invoke()
-        bottleneck = interpreter.get_tensor(output_details[0]["index"]).copy()
+        bottleneck: np.ndarray = interpreter.get_tensor(output_details[0]["index"]).copy()
 
         del interpreter
         gc.collect()
