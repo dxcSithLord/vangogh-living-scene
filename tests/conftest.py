@@ -38,7 +38,7 @@ from PIL import Image
 
 # --- picamera2 (src/camera.py) ---
 try:
-    import picamera2  # noqa: F401
+    import picamera2  # noqa: F401 — side-effect: prove import works or fall through to mock
 except ImportError:
     _picamera2 = MagicMock()
     sys.modules["picamera2"] = _picamera2
@@ -47,7 +47,7 @@ except ImportError:
 
 # --- inky (src/display.py) ---
 try:
-    import inky  # noqa: F401
+    import inky  # noqa: F401 — side-effect: prove import works or fall through to mock
 except ImportError:
     _inky = MagicMock()
     sys.modules["inky"] = _inky
@@ -55,20 +55,20 @@ except ImportError:
 
 # --- rembg (src/isolator.py) ---
 try:
-    import rembg  # noqa: F401
+    import rembg  # noqa: F401 — side-effect: prove import works or fall through to mock
 except ImportError:
     sys.modules["rembg"] = MagicMock()
 
 # --- ai_edge_litert (src/styler.py) ---
 try:
-    import ai_edge_litert  # noqa: F401
+    import ai_edge_litert  # noqa: F401 — side-effect: prove import works or fall through to mock
 except ImportError:
     sys.modules["ai_edge_litert"] = MagicMock()
     sys.modules["ai_edge_litert.interpreter"] = MagicMock()
 
 # --- systemd (src/main.py) ---
 try:
-    import systemd  # noqa: F401
+    import systemd  # noqa: F401 — side-effect: prove import works or fall through to mock
 except ImportError:
     sys.modules["systemd"] = MagicMock()
     sys.modules["systemd.daemon"] = MagicMock()
@@ -97,7 +97,8 @@ def sample_config() -> dict:
             "style_image": "assets/backgrounds/van_gogh_cafe.jpg",
         },
         "detection": {
-            "model": "/usr/share/imx500-models/imx500_network_ssd_mobilenetv2_fpnlite_320x320_pp.rpk",
+            "model": "/usr/share/imx500-models/"
+            "imx500_network_ssd_mobilenetv2_fpnlite_320x320_pp.rpk",
             "confidence": 0.6,
             "labels": ["person", "cat", "dog"],
         },

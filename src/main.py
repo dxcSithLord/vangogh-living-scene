@@ -239,7 +239,7 @@ def main() -> None:
     config_path = project_root / "config" / "config.yaml"
 
     if not config_path.is_file():
-        print(f"Config file not found: {config_path}", file=sys.stderr)
+        logger.critical("Config file not found: %s", config_path)
         sys.exit(1)
 
     with config_path.open("r", encoding="utf-8") as f:

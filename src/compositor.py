@@ -25,7 +25,7 @@ _IMAGE_MAGIC: dict[str, bytes] = {
 if __name__ == "__main__":
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from src.slots import Slot, SlotManager
+from src.slots import Slot, SlotManager  # noqa: E402 — sys.path.insert above is intentional
 
 logger = logging.getLogger(__name__)
 

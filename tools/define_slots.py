@@ -79,7 +79,7 @@ class SlotDefiner:
         """Prompt for a dimension value, validating range. Returns None on cancel."""
         raw = simpledialog.askstring(
             f"Slot {label}",
-            f"{label} in pixels (1–{maximum}, default {default}):",
+            f"{label} in pixels (1-{maximum}, default {default}):",
             parent=self._root,
         )
         if not raw:
@@ -89,7 +89,7 @@ class SlotDefiner:
             return None
         value = int(raw)
         if value < 1 or value > maximum:
-            logger.warning("%s=%d is out of range (1–%d)", label, value, maximum)
+            logger.warning("%s=%d is out of range (1-%d)", label, value, maximum)
             return None
         return value
 
@@ -171,7 +171,7 @@ def main() -> None:
     """Entry point for the slot definition tool."""
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 2:  # noqa: PLR2004 — standard sys.argv CLI guard
         print(f"Usage: python {sys.argv[0]} <path/to/background.png>")
         sys.exit(1)
 

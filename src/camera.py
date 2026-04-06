@@ -68,9 +68,9 @@ class Camera:
 
     def start(self) -> None:
         """Load firmware onto IMX500 and start the camera stream."""
-        from picamera2 import Picamera2  # noqa: PLC0415 — lazy: hardware-only dep
-        from picamera2.devices import IMX500  # noqa: PLC0415
-        from picamera2.devices.imx500 import NetworkIntrinsics  # noqa: PLC0415
+        from picamera2 import Picamera2
+        from picamera2.devices import IMX500
+        from picamera2.devices.imx500 import NetworkIntrinsics
 
         logger.info("Loading IMX500 firmware: %s", self._model_path)
         self._imx500 = IMX500(self._model_path)
@@ -165,7 +165,7 @@ class Camera:
         scores = np_outputs[1][0]
         classes = np_outputs[2][0]
 
-        input_w, input_h = self._imx500.get_input_size()
+        _input_w, input_h = self._imx500.get_input_size()
 
         if getattr(self._intrinsics, "bbox_normalization", False):
             boxes = boxes / input_h
@@ -175,7 +175,7 @@ class Camera:
 
         results: list[tuple[tuple[int, int, int, int], str, float]] = []
 
-        for box, score, cls_id in zip(boxes, scores, classes):
+        for box, score, cls_id in zip(boxes, scores, classes, strict=False):
             score_f = float(score)
             if score_f < self._confidence:
                 continue
