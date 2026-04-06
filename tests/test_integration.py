@@ -175,10 +175,10 @@ class TestPresenceIntegration:
     ) -> None:
         """Feed detections into the presence manager and verify ENTERED/EXITED."""
         det_queue: queue.Queue[Detection] = queue.Queue(maxsize=50)
-        events: list[tuple[Event, Image.Image | None]] = []
+        events: list[tuple[Event, Image.Image | None, bool]] = []
 
-        def on_event(event: Event, crop: Image.Image | None) -> None:
-            events.append((event, crop))
+        def on_event(event: Event, crop: Image.Image | None, ghost_hit: bool) -> None:
+            events.append((event, crop, ghost_hit))
 
         presence = PresenceManager(
             config=integration_config,
@@ -196,6 +196,7 @@ class TestPresenceIntegration:
         assert len(events) == 1
         assert events[0][0] == Event.ENTERED
         assert events[0][1] is not None
+        assert events[0][2] is False  # not a ghost re-entry
         assert presence.state == State.PRESENT
 
         # Feed enough misses to trigger EXITED (exiting_frames=3)
@@ -212,10 +213,10 @@ class TestPresenceIntegration:
     ) -> None:
         """Detection during EXITING should cancel the exit."""
         det_queue: queue.Queue[Detection] = queue.Queue(maxsize=50)
-        events: list[tuple[Event, Image.Image | None]] = []
+        events: list[tuple[Event, Image.Image | None, bool]] = []
 
-        def on_event(event: Event, crop: Image.Image | None) -> None:
-            events.append((event, crop))
+        def on_event(event: Event, crop: Image.Image | None, ghost_hit: bool) -> None:
+            events.append((event, crop, ghost_hit))
 
         presence = PresenceManager(
             config=integration_config,
@@ -243,6 +244,47 @@ class TestPresenceIntegration:
         # Only one event (ENTERED), no EXITED
         assert len(events) == 1
         assert events[0][0] == Event.ENTERED
+
+    def test_ghost_reentry(
+        self,
+        integration_config: dict[str, Any],
+    ) -> None:
+        """Exit then re-enter within TTL — second ENTERED should have ghost_hit=True."""
+        det_queue: queue.Queue[Detection] = queue.Queue(maxsize=50)
+        events: list[tuple[Event, Image.Image | None, bool]] = []
+
+        def on_event(event: Event, crop: Image.Image | None, ghost_hit: bool) -> None:
+            events.append((event, crop, ghost_hit))
+
+        presence = PresenceManager(
+            config=integration_config,
+            detection_queue=det_queue,
+            event_callback=on_event,
+        )
+
+        crop = Image.new("RGB", (64, 64), color=(128, 64, 32))
+
+        # First entry (entering_frames=2)
+        for _ in range(2):
+            det_queue.put(Detection(label="person", confidence=0.8, crop=crop))
+            presence._tick()
+        assert events[0][0] == Event.ENTERED
+        assert events[0][2] is False  # first entry, no ghost
+
+        # Full exit (exiting_frames=3)
+        for _ in range(3):
+            presence._tick()
+        assert events[1][0] == Event.EXITED
+        assert presence.state == State.ABSENT
+
+        # Re-enter within TTL (ghost_ttl_seconds=60 in integration_config)
+        for _ in range(2):
+            det_queue.put(Detection(label="person", confidence=0.8, crop=crop))
+            presence._tick()
+
+        assert len(events) == 3
+        assert events[2][0] == Event.ENTERED
+        assert events[2][2] is True  # ghost re-entry
 
 
 class TestSecurityLoggerIntegration:
