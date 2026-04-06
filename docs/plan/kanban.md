@@ -40,7 +40,7 @@ Running totals against `docs/ci-baseline.md`:
 |---|---|---|---|
 | T1 | Ruff autofix (format + --fix safe rules) | ✅ Done | #37 |
 | T2 | Ruff lint (non-autofix) — one sub-PR per rule family | Todo | — |
-| T3 | Mypy strict fixes — per module | 🟡 In progress (3 errors remaining) | #38 merged, #39 open (review addressed) |
+| T3 | Mypy strict fixes — per module | 🟡 In progress (3 errors remaining) | #38, #39 merged; final slice next |
 | T4 | Bandit findings — by severity/module | ✅ Done (already clean per baseline) | — |
 | T5 | Pip-audit CVE dep bumps | ✅ Done (already clean per baseline) | — |
 | T6 | Flip continue-on-error → false across all workflows | 🔒 Blocked on T2+T3 | — |
@@ -105,7 +105,7 @@ in `src/styler.py` / `src/isolator.py`.
 
 | ID | Title | Branch | PR |
 |---|---|---|---|
-| T3 (generics slice) | dict/Queue generics + `__future__` annotations + camera.py PLC0415 noqa | `sprint6/t3-generics-annotations` | #39 |
+| T3 (final slice) | config_validator arg-type + styler no-any-return + compositor assignment | `sprint6/t3-final` | — |
 
 ---
 
@@ -115,6 +115,7 @@ Full history in `PLAN_HISTORY.md`.
 
 | ID | Title | PR | Merged |
 |---|---|---|---|
+| **T3** (slice 2) | dict/Queue generics + `__future__` annotations + camera.py PLC0415 noqa | #39 | 2026-04-06 |
 | **T3** (slice 1) | define_slots TypedDict + mypy.ini cleanup + LANCZOS codebase-wide + DisplayProtocol + Pillow/numpy in dev deps | #38 | 2026-04-05 |
 | **T1** | Ruff autofix sweep (format + --fix, 45→32 lint) | #37 | 2026-04-05 |
 | **E3** | scripts/compliance-check.sh (closes #26) | #35 | 2026-04-05 |
