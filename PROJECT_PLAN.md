@@ -26,7 +26,7 @@ Top of kanban (snapshot — authoritative copy in `docs/plan/kanban.md`):
 | Done | T3 | Mypy strict fixes (all 23 cleared) | #38, #39, #40 |
 | Done | T4 | Bandit (already clean) | — |
 | Done | T5 | Pip-audit (already clean) | ��� |
-| Done | T6 | Flip continue-on-error → false | #TBD |
+| Done | T6 | Flip continue-on-error → false | #42 |
 
 ---
 
