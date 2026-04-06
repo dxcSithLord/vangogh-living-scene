@@ -1,0 +1,23 @@
+[
+  {
+    "id": "slot_left",
+    "x": 200,
+    "y": 500,
+    "width": 200,
+    "height": 450
+  },
+  {
+    "id": "slot_centre",
+    "x": 700,
+    "y": 450,
+    "width": 200,
+    "height": 500
+  },
+  {
+    "id": "slot_right",
+    "x": 1200,
+    "y": 500,
+    "width": 200,
+    "height": 450
+  }
+]
