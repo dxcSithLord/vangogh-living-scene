@@ -41,14 +41,28 @@ ignore = [
     "PLR0913",
 ]
 
+[lint.pylint]
+# config_validator.validate_config is a single validation function that checks
+# many config keys — splitting it would hurt readability. presence._advance is
+# a state machine with inherently branchy logic. Raise thresholds to fit.
+max-branches = 25
+max-statements = 60
+
 [lint.per-file-ignores]
-# Tests may use assert, print, and longer arg lists
-"tests/**" = ["S101", "T20", "PLR2004"]
+# Lazy imports are an intentional architectural pattern on this 512 MB device:
+#   - Hardware deps (rembg, ai_edge_litert, inky, picamera2) loaded on first
+#     use to avoid RSS bloat at startup (see CLAUDE.md "Memory management").
+#   - _run_standalone() helpers import yaml/threading locally since they only
+#     run in __main__ CLI mode, not the main pipeline.
+# Tests may use assert, print, magic values, and lazy imports
+"tests/**" = ["S101", "T20", "PLR2004", "PLC0415"]
 # Tools are CLI scripts where print() is the correct output mechanism
 "tools/**" = ["T20"]
 # Standalone __main__ sections in src modules use print for CLI feedback
 "src/presence.py" = ["T20"]
 "src/config_validator.py" = ["T20"]
+# All src modules: lazy imports allowed (see comment above)
+"src/**" = ["PLC0415"]
 
 [lint.isort]
 known-first-party = ["src", "tools", "tests"]
