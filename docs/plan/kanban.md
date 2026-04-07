@@ -5,7 +5,7 @@
 > Before making code changes: confirm the sprint matches
 > `docs/plan/sprints.md` per CLAUDE.md "Before writing code" rule #3.
 
-Last reviewed: 2026-04-06 (Sprint 6 complete, Sprint 7 ready)
+Last reviewed: 2026-04-07 (Sprint 7 in progress, 3 doc cards added)
 
 ---
 
@@ -81,6 +81,9 @@ Cards at the same level can run in parallel; work lower levels after higher.
 | **P5** | G-VERIFY | Verification tasks (read-only, may spawn follow-ups) | #11 #13 #20 | `gap/g-verify-*` | tests + docs |
 | **P6** | G-COMPLY-VERSIONS | Pre-flight tool-version check in `compliance-check.sh` | — | `gap/g-comply-versions` | `scripts/`, `requirements-dev.txt` |
 | **P7** | G-DOC | Docs cleanup (omnibus or per-issue) | #3 #5 #9 #10 #12 #14 #15 #19 | `gap/g-doc-*` | docs only |
+| **P7** | G-DOC-ARCH | Update ARCHITECTURE.md — ghost cache, RSS checks, fast path, error recovery | — | `gap/g-doc-arch` | `ARCHITECTURE.md`, `docs/plan/architecture.md` |
+| **P7** | G-DOC-MODULES | Update modules.md — slots API, GhostCache, EventCallback, DisplayProtocol | — | `gap/g-doc-modules` | `docs/modules.md` |
+| **P7** | G-DOC-SECURITY | Security reference docs — event catalog, validation rules, resource limits | — | `gap/g-doc-security` | `docs/` (new files) |
 | **P8** | G-INSTALL-DOC | Refresh `docs/plan/install.md` with confirmed deps | — | `gap/g-install-doc` | docs only |
 
 ### Card notes
@@ -103,6 +106,38 @@ validation in `main.py`, so the event would fail even if emitted.
 **G-COMPLY-VERSIONS (P6):** Parse `requirements-dev.txt`, compare pinned vs
 installed versions for each tool invoked by `scripts/compliance-check.sh`, log
 expected/actual, and exit non-zero on drift. Deferred from PR #35 (E3) review.
+
+**G-DOC-ARCH (P7):** ARCHITECTURE.md has several gaps from recent code changes:
+(1) Ghost cache dual-system not explained — `presence.py` maintains `_GhostCache`
+(raw crops), `main.py` maintains `_last_styled` (styled images); interaction
+between the two is undocumented. (2) `_check_rss()` instrumentation points added
+in G-RSS PR #45 not reflected. (3) `ghost_hit` fast path that skips
+isolator+styler not documented. (4) Error recovery behaviour (slot release on
+pipeline failure) not described. (5) `docs/plan/architecture.md` diagram still
+says `tflite-runtime` but code uses `ai_edge_litert`. Also update #9 (D7) note
+— RSS is now enforced in main loop, not just styler.
+
+**G-DOC-MODULES (P7):** `docs/modules.md` is behind current code:
+(1) `slots.py` section is minimal — missing `free_count`, `get_slot()`,
+`all_slots`, occupancy state machine. (2) `_GhostCache` class in `presence.py`
+not mentioned — dual-cache architecture needs explanation. (3) `EventCallback`
+type alias (includes `ghost_hit` param) not documented. (4) `DisplayProtocol`
+structural protocol in `display.py` not documented. (5) `config_validator.py`
+has two public functions (`validate_config` returns errors, `validate_or_exit`
+calls `sys.exit`) — only `validate_or_exit` is mentioned.
+
+**G-DOC-SECURITY (P7):** Security-relevant details are scattered across code
+with no central reference. Create three docs:
+(1) `docs/security-events.md` — catalog all 6 `SecurityEvent` enum values
+(`CONFIG_VALIDATION_FAIL`, `CHECKSUM_MISMATCH`, `ERROR_THRESHOLD_BREACH`,
+`BOUNDS_VIOLATION`, `INVALID_FILE_TYPE`, `FILE_SIZE_EXCEEDED`), when each is
+emitted, and severity levels from `_EVENT_SEVERITY`.
+(2) `docs/config-validation.md` — document all validation rules from
+`config_validator.py` (12 range checks, 6 required strings, 5 path checks,
+valid log levels).
+(3) `docs/security-limits.md` — centralize resource limits currently scattered:
+`isolator.py:_MAX_INPUT_DIMENSION=2048`, `slots.py:_MAX_SLOTS_FILE_BYTES=1MB`,
+`compositor.py:MAX_IMAGE_PIXELS=25M`.
 
 **G-INSTALL-DOC (P8):** Gated — do not start until all deps are tested and
 confirmed on-Pi (successful `scripts/compliance-check.sh` run). Current
