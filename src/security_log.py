@@ -47,7 +47,9 @@ def init_security_logger(
     """Initialise the security logger.
 
     Adds a StreamHandler (for journald/stderr) and optionally a FileHandler.
-    Safe to call multiple times — handlers are only added once.
+    Safe to call multiple times — each handler type is added at most once.
+    A bootstrap call (no log_file) followed by a full call (with log_file)
+    will attach the file handler on the second call.
 
     Args:
         log_file: Optional path to a dedicated security log file.
@@ -56,24 +58,28 @@ def init_security_logger(
     Returns:
         The configured security logger instance.
     """
-    if logger.handlers:
-        return logger
-
     logger.setLevel(level)
     formatter = logging.Formatter(
         "%(asctime)s %(name)s %(levelname)s [%(event_type)s] %(message)s",
         datefmt="%Y-%m-%dT%H:%M:%S",
     )
 
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(formatter)
-    logger.addHandler(stream_handler)
+    # Add StreamHandler once (console / journald).
+    # Use exact type check: FileHandler is a StreamHandler subclass.
+    has_stream = any(type(h) is logging.StreamHandler for h in logger.handlers)
+    if not has_stream:
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(formatter)
+        logger.addHandler(stream_handler)
 
+    # Add FileHandler once, when a log file is configured.
     if log_file is not None:
-        log_file.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_file, encoding="utf-8")
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
+        has_file = any(isinstance(h, logging.FileHandler) for h in logger.handlers)
+        if not has_file:
+            log_file.parent.mkdir(parents=True, exist_ok=True)
+            file_handler = logging.FileHandler(log_file, encoding="utf-8")
+            file_handler.setFormatter(formatter)
+            logger.addHandler(file_handler)
 
     return logger
 

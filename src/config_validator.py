@@ -175,7 +175,7 @@ def validate_or_exit(config: dict[str, Any], project_root: Path) -> None:
             logger.error("  - %s", err)
         log_security_event(
             SecurityEvent.CONFIG_VALIDATION_FAIL,
-            f"Config validation failed with {len(errors)} error(s)",
+            f"Config validation failed with {len(errors)} error(s): {'; '.join(errors)}",
         )
         sys.exit(1)
     logger.info("Config validation passed")
