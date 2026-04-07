@@ -321,6 +321,11 @@ def main() -> None:
         datefmt="%Y-%m-%dT%H:%M:%S",
     )
 
+    # Bootstrap security logger (console-only) so CONFIG_VALIDATION_FAIL
+    # events can be emitted during validation. Application.__init__ will
+    # reconfigure with the file handler once config is validated.
+    init_security_logger()
+
     # Validate config — exits on failure
     validate_or_exit(config, project_root)
 
