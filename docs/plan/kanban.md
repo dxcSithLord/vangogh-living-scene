@@ -79,12 +79,12 @@ Cards at the same level can run in parallel; work lower levels after higher.
 | ~~P3~~ | ~~G-RSS~~ | ~~Enforce `memory.rss_warning_mb` in main loop~~ | ~~#8~~ | ✅ Done (#45) | — |
 | ~~P4~~ | ~~G-CONFIG-EVT~~ | ~~Emit `CONFIG_VALIDATION_FAIL` security event + fix init order~~ | ~~#18~~ | ✅ Done (#46) | — |
 | ~~P5~~ | ~~G-VERIFY~~ | ~~Verification tasks (read-only)~~ | ~~#11 #13 #20~~ | ✅ Done (see notes) | — |
-| **P6** | G-COMPLY-VERSIONS | Pre-flight tool-version check in `compliance-check.sh` | — | `gap/g-comply-versions` | `scripts/`, `requirements-dev.txt` |
+| ~~P6~~ | ~~G-COMPLY-VERSIONS~~ | ~~Pre-flight tool-version check~~ | — | ✅ Closed (redundant, see notes) | — |
 | **P7** | G-DOC | Docs cleanup (omnibus or per-issue) | #3 #5 #9 #10 #12 #14 #15 #19 | `gap/g-doc-*` | docs only |
 | **P7** | G-DOC-ARCH | Update ARCHITECTURE.md — ghost cache, RSS checks, fast path, error recovery | — | `gap/g-doc-arch` | `ARCHITECTURE.md`, `docs/plan/architecture.md` |
 | **P7** | G-DOC-MODULES | Update modules.md — slots API, GhostCache, EventCallback, DisplayProtocol | — | `gap/g-doc-modules` | `docs/modules.md` |
 | **P7** | G-DOC-SECURITY | Security reference docs — event catalog, validation rules, resource limits | — | `gap/g-doc-security` | `docs/` (new files) |
-| **P8** | G-INSTALL-DOC | Refresh `docs/plan/install.md` with confirmed deps | — | `gap/g-install-doc` | docs only |
+| **P8** | G-INSTALL-DOC | Offline install pipeline + refresh `docs/plan/install.md` | — | `gap/g-install-doc` | `docs/`, `scripts/` |
 
 ### Card notes
 
@@ -110,9 +110,13 @@ validation in `main.py`, so the event would fail even if emitted.
 - #11: sample_config labels `["person","cat","dog"]` missing `"bird","horse"`
   from production config. Follow-up fix needed (minor, test-only).
 
-**G-COMPLY-VERSIONS (P6):** Parse `requirements-dev.txt`, compare pinned vs
-installed versions for each tool invoked by `scripts/compliance-check.sh`, log
-expected/actual, and exit non-zero on drift. Deferred from PR #35 (E3) review.
+**G-COMPLY-VERSIONS (P6):** Closed as redundant. `requirements-dev.txt` header
+states dev tools are "Not installed on the target Pi." The compliance script
+already validates tool presence implicitly — if a tool is missing its check
+fails. A pre-flight version check adds no value: on the Pi the tools aren't
+installed; in CI the workflows install them from `requirements-dev.txt`; on dev
+machines the checks themselves validate behaviour. The real gap is the offline
+install pipeline — folded into G-INSTALL-DOC (see expanded scope below).
 
 **G-DOC-ARCH (P7):** ARCHITECTURE.md has several gaps from recent code changes:
 (1) Ghost cache dual-system not explained — `presence.py` maintains `_GhostCache`
@@ -146,13 +150,25 @@ valid log levels).
 `isolator.py:_MAX_INPUT_DIMENSION=2048`, `slots.py:_MAX_SLOTS_FILE_BYTES=1MB`,
 `compositor.py:MAX_IMAGE_PIXELS=25M`.
 
-**G-INSTALL-DOC (P8):** Gated — do not start until all deps are tested and
-confirmed on-Pi (successful `scripts/compliance-check.sh` run). Current
-`docs/plan/install.md` is stale: uses `venv` instead of `.venv`, unpinned
-`pip install`, `tflite-runtime` instead of `ai_edge_litert`, and `curl -L`
-without SHA-256 for model downloads. Authoritative sources to sync against:
-`install.sh`, `requirements.lock`, `requirements-ci.txt`, and the real imports
-in `src/styler.py` / `src/isolator.py`.
+**G-INSTALL-DOC (P8):** Expanded scope (absorbs G-COMPLY-VERSIONS rationale).
+Gated — do not start until all deps are tested and confirmed on-Pi.
+
+Two parts:
+(1) **Offline install pipeline design** — document (and optionally script) the
+air-gapped deployment workflow:
+  - Connected system: `pip download -r requirements.lock -d ./pkg-cache/`
+  - Bundle: tar the package cache + model files + checksums (SHA-256 manifest)
+  - Transfer: physical media to the disconnected Pi
+  - Verify: validate SHA-256 checksums of the tar contents before install
+  - Install: `pip install --no-index --find-links=./pkg-cache/ -r requirements.lock`
+  - Same pattern applies for dev tools if compliance runs are needed on-Pi
+
+(2) **Refresh `docs/plan/install.md`** — current doc is stale: uses `venv`
+instead of `.venv`, unpinned `pip install`, `tflite-runtime` instead of
+`ai_edge_litert`, and `curl -L` without SHA-256 for model downloads.
+Authoritative sources to sync against: `install.sh`, `requirements.lock`,
+`requirements-ci.txt`, and the real imports in `src/styler.py` /
+`src/isolator.py`.
 
 ---
 
@@ -168,6 +184,7 @@ Full history in `PLAN_HISTORY.md`.
 
 | ID | Title | PR | Merged |
 |---|---|---|---|
+| **G-COMPLY-VERSIONS** | Closed as redundant — folded into G-INSTALL-DOC | — | 2026-04-07 |
 | **G-VERIFY** | Verification tasks: #13 ✅ #20 ✅ closed, #11 spawns follow-up | — | 2026-04-07 |
 | **G-CONFIG-EVT** | Emit CONFIG_VALIDATION_FAIL + fix init order (closes #18) | #46 | 2026-04-07 |
 | **G-RSS** | Enforce rss_warning_mb threshold in main loop (closes #8) | #45 | 2026-04-07 |
