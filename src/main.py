@@ -36,10 +36,21 @@ logger = logging.getLogger(__name__)
 _WATCHDOG_INTERVAL_SECONDS: float = 120.0
 
 
+_STATM_PATH = Path("/proc/self/statm")
+
+
 def _rss_mb() -> float:
-    """Return current RSS in megabytes."""
-    usage = resource.getrusage(resource.RUSAGE_SELF)
-    return usage.ru_maxrss / 1024.0
+    """Return current RSS in megabytes.
+
+    Reads live RSS from /proc/self/statm (Linux). Falls back to
+    ru_maxrss (peak RSS) on non-Linux systems or read failure.
+    """
+    try:
+        resident_pages = int(_STATM_PATH.read_text(encoding="utf-8").split()[1])
+        return resident_pages * resource.getpagesize() / (1024.0 * 1024.0)
+    except (OSError, IndexError, ValueError):
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        return usage.ru_maxrss / 1024.0
 
 
 class Application:
@@ -49,6 +60,8 @@ class Application:
         self._config = config
         self._project_root = project_root
         self._shutdown_event = threading.Event()
+        self._rss_warning_mb: int = config["memory"]["rss_warning_mb"]
+        self._rss_alerted: bool = False
 
         # --- Security logger ---
         log_cfg = config.get("security_log", {})
@@ -79,7 +92,7 @@ class Application:
         # --- rembg session (loaded once, kept alive) ---
         rembg_model = config["rembg"]["model_name"]
         self._rembg_session = create_session(rembg_model)
-        logger.info("rembg session ready (RSS: %.0f MB)", _rss_mb())
+        self._check_rss("rembg session ready")
 
         # --- Styler (computes bottleneck once) ---
         style_cfg = config["style"]
@@ -92,7 +105,7 @@ class Application:
             num_threads=style_cfg["num_threads"],
             rss_warning_mb=config["memory"]["rss_warning_mb"],
         )
-        logger.info("Styler ready (RSS: %.0f MB)", _rss_mb())
+        self._check_rss("Styler ready")
 
         # --- Camera and presence ---
         self._det_queue: queue.Queue[Detection] = queue.Queue(maxsize=50)
@@ -107,6 +120,39 @@ class Application:
         self._active_slot_id: str | None = None
         # Cache last styled image for ghost re-entry (skip isolator+styler).
         self._last_styled: Image.Image | None = None
+
+    def _check_rss(self, stage: str) -> float:
+        """Log RSS and warn if it exceeds the configured threshold.
+
+        Emits a security event on the first breach. Subsequent calls while RSS
+        remains above threshold are suppressed to avoid alert noise. The flag
+        resets automatically when RSS drops back below the threshold.
+
+        Args:
+            stage: Human-readable label for the pipeline stage.
+
+        Returns:
+            Current RSS in megabytes.
+        """
+        rss = _rss_mb()
+        logger.debug("%s (RSS: %.0f MB)", stage, rss)
+        if rss > self._rss_warning_mb:
+            if not self._rss_alerted:
+                logger.warning(
+                    "RSS %.0f MB exceeds threshold %d MB after %s",
+                    rss,
+                    self._rss_warning_mb,
+                    stage,
+                )
+                log_security_event(
+                    SecurityEvent.ERROR_THRESHOLD_BREACH,
+                    f"RSS {rss:.0f} MB exceeds {self._rss_warning_mb} MB after {stage}",
+                )
+                self._rss_alerted = True
+        elif self._rss_alerted:
+            logger.info("RSS %.0f MB back below threshold %d MB", rss, self._rss_warning_mb)
+            self._rss_alerted = False
+        return rss
 
     def _on_presence_event(self, event: Event, crop: Image.Image | None, ghost_hit: bool) -> None:
         """Handle ENTERED/EXITED events from the presence state machine."""
@@ -127,7 +173,7 @@ class Application:
             return
 
         self._active_slot_id = slot.id
-        logger.info("Processing subject for slot '%s' (RSS: %.0f MB)", slot.id, _rss_mb())
+        self._check_rss(f"Processing subject for slot '{slot.id}'")
 
         try:
             if ghost_hit and self._last_styled is not None:
@@ -138,11 +184,11 @@ class Application:
                 # Full pipeline
                 # 1. Remove background
                 isolated = remove_background(crop, session=self._rembg_session)
-                logger.info("Isolation complete (RSS: %.0f MB)", _rss_mb())
+                self._check_rss("Isolation complete")
 
                 # 2. Apply style
                 styled = self._styler.stylize(isolated)
-                logger.info("Style transfer complete (RSS: %.0f MB)", _rss_mb())
+                self._check_rss("Style transfer complete")
 
                 # Free intermediate image
                 del isolated
@@ -154,7 +200,7 @@ class Application:
             # 3. Composite into scene
             self._compositor.add_figure(slot, styled)
             scene = self._compositor.render()
-            logger.info("Compositing complete (RSS: %.0f MB)", _rss_mb())
+            self._check_rss("Compositing complete")
 
             # 4. Display
             self._display.show(scene)
@@ -246,7 +292,7 @@ class Application:
         while not self._shutdown_event.wait(timeout=_WATCHDOG_INTERVAL_SECONDS):
             if has_systemd:
                 notify("WATCHDOG=1")
-            logger.debug("Watchdog ping (RSS: %.0f MB)", _rss_mb())
+            self._check_rss("Watchdog ping")
 
     def _signal_handler(self, signum: int, frame: Any) -> None:
         """Handle SIGTERM/SIGINT by signalling the shutdown event."""
