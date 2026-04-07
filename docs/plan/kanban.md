@@ -76,7 +76,7 @@ Cards at the same level can run in parallel; work lower levels after higher.
 |---|---|---|---|---|---|
 | ~~P1~~ | ~~G-SLOTS~~ | ~~Missing slots JSON~~ | ~~#4~~ | ✅ Done (#43) | — |
 | ~~P2~~ | ~~G-GHOST~~ | ~~Ghost cache refresh + skip logic~~ | ~~#6 #7~~ | ✅ Done (#44) | — |
-| **P3** | G-RSS | Enforce `memory.rss_warning_mb` in main loop | #8 | `gap/g-rss-threshold` | `main.py` |
+| ~~P3~~ | ~~G-RSS~~ | ~~Enforce `memory.rss_warning_mb` in main loop~~ | ~~#8~~ | ✅ Done (#45) | — |
 | **P4** | G-CONFIG-EVT | Emit `CONFIG_VALIDATION_FAIL` security event + fix init order | #18 | `gap/g-config-evt` | `config_validator.py`, `security_log.py`, `main.py` |
 | **P5** | G-VERIFY | Verification tasks (read-only, may spawn follow-ups) | #11 #13 #20 | `gap/g-verify-*` | tests + docs |
 | **P6** | G-COMPLY-VERSIONS | Pre-flight tool-version check in `compliance-check.sh` | — | `gap/g-comply-versions` | `scripts/`, `requirements-dev.txt` |
@@ -161,6 +161,7 @@ Full history in `PLAN_HISTORY.md`.
 
 | ID | Title | PR | Merged |
 |---|---|---|---|
+| **G-RSS** | Enforce rss_warning_mb threshold in main loop (closes #8) | #45 | 2026-04-07 |
 | **G-GHOST** | Ghost cache refresh + skip pipeline on re-entry (closes #6, #7) | #44 | 2026-04-06 |
 | **G-SLOTS** | Initial cafe_terrace_slots.json (closes #4) | #43 | 2026-04-06 |
 | **T6** | Flip continue-on-error → false across all CI workflows | #42 | 2026-04-06 |
