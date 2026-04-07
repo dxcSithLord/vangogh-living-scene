@@ -78,7 +78,7 @@ Cards at the same level can run in parallel; work lower levels after higher.
 | ~~P2~~ | ~~G-GHOST~~ | ~~Ghost cache refresh + skip logic~~ | ~~#6 #7~~ | ✅ Done (#44) | — |
 | ~~P3~~ | ~~G-RSS~~ | ~~Enforce `memory.rss_warning_mb` in main loop~~ | ~~#8~~ | ✅ Done (#45) | — |
 | ~~P4~~ | ~~G-CONFIG-EVT~~ | ~~Emit `CONFIG_VALIDATION_FAIL` security event + fix init order~~ | ~~#18~~ | ✅ Done (#46) | — |
-| **P5** | G-VERIFY | Verification tasks (read-only, may spawn follow-ups) | #11 #13 #20 | `gap/g-verify-*` | tests + docs |
+| ~~P5~~ | ~~G-VERIFY~~ | ~~Verification tasks (read-only)~~ | ~~#11 #13 #20~~ | ✅ Done (see notes) | — |
 | **P6** | G-COMPLY-VERSIONS | Pre-flight tool-version check in `compliance-check.sh` | — | `gap/g-comply-versions` | `scripts/`, `requirements-dev.txt` |
 | **P7** | G-DOC | Docs cleanup (omnibus or per-issue) | #3 #5 #9 #10 #12 #14 #15 #19 | `gap/g-doc-*` | docs only |
 | **P7** | G-DOC-ARCH | Update ARCHITECTURE.md — ghost cache, RSS checks, fast path, error recovery | — | `gap/g-doc-arch` | `ARCHITECTURE.md`, `docs/plan/architecture.md` |
@@ -102,6 +102,13 @@ the configured 460 MB threshold. Only `styler.py` warns. On a 512 MB device with
 **G-CONFIG-EVT (P4):** Two-part fix — (1) `validate_or_exit()` never calls
 `log_security_event()`, and (2) security logger initialises *after* config
 validation in `main.py`, so the event would fail even if emitted.
+
+**G-VERIFY (P5):** Read-only investigation, 2026-04-07:
+- #13: StartLimitBurst=5/300s verified in service file and ARCHITECTURE.md. ✅ Closed.
+- #20: SEC-14 (MAX_IMAGE_PIXELS=25M) and SEC-16 (magic-byte validation) both
+  confirmed in compositor.py:16–51. ✅ Closed.
+- #11: sample_config labels `["person","cat","dog"]` missing `"bird","horse"`
+  from production config. Follow-up fix needed (minor, test-only).
 
 **G-COMPLY-VERSIONS (P6):** Parse `requirements-dev.txt`, compare pinned vs
 installed versions for each tool invoked by `scripts/compliance-check.sh`, log
@@ -161,6 +168,7 @@ Full history in `PLAN_HISTORY.md`.
 
 | ID | Title | PR | Merged |
 |---|---|---|---|
+| **G-VERIFY** | Verification tasks: #13 ✅ #20 ✅ closed, #11 spawns follow-up | — | 2026-04-07 |
 | **G-CONFIG-EVT** | Emit CONFIG_VALIDATION_FAIL + fix init order (closes #18) | #46 | 2026-04-07 |
 | **G-RSS** | Enforce rss_warning_mb threshold in main loop (closes #8) | #45 | 2026-04-07 |
 | **G-GHOST** | Ghost cache refresh + skip pipeline on re-entry (closes #6, #7) | #44 | 2026-04-06 |
