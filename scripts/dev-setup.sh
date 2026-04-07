@@ -55,12 +55,25 @@ printf 'INFO: Python %s detected\n' "${PY_VERSION}"
 # ---------------------------------------------------------------------------
 # Check required files exist
 # ---------------------------------------------------------------------------
-for req_file in "requirements.lock" "requirements-dev.txt"; do
-    if [[ ! -f "${REPO_ROOT}/${req_file}" ]]; then
-        printf 'ERROR: %s not found at %s\n' "${req_file}" "${REPO_ROOT}" >&2
-        exit 1
-    fi
-done
+if [[ ! -f "${REPO_ROOT}/requirements.lock" ]]; then
+    printf 'ERROR: requirements.lock not found at %s\n' "${REPO_ROOT}" >&2
+    exit 1
+fi
+
+# Dev tools: prefer hash-pinned lockfile, fall back to unpinned txt
+if [[ -f "${REPO_ROOT}/requirements-dev.lock" ]]; then
+    DEV_DEPS_FILE="${REPO_ROOT}/requirements-dev.lock"
+    DEV_DEPS_HASH_FLAG="--require-hashes"
+    printf 'INFO: Using hash-pinned requirements-dev.lock\n'
+elif [[ -f "${REPO_ROOT}/requirements-dev.txt" ]]; then
+    DEV_DEPS_FILE="${REPO_ROOT}/requirements-dev.txt"
+    DEV_DEPS_HASH_FLAG=""
+    printf 'WARNING: requirements-dev.lock not found — using requirements-dev.txt without hash verification.\n' >&2
+    printf '  Generate with: pip-compile --generate-hashes requirements-dev.txt -o requirements-dev.lock\n' >&2
+else
+    printf 'ERROR: Neither requirements-dev.lock nor requirements-dev.txt found at %s\n' "${REPO_ROOT}" >&2
+    exit 1
+fi
 
 # ---------------------------------------------------------------------------
 # Create virtual environment
@@ -79,14 +92,12 @@ source "${VENV_DIR}/bin/activate"
 # ---------------------------------------------------------------------------
 # Install dependencies (SEC-04: hash-pinned, OWASP A08)
 # ---------------------------------------------------------------------------
-printf '\n=== Upgrading pip ===\n'
-python3 -m pip install --upgrade pip
-
 printf '\n=== Installing runtime dependencies (hash-pinned) ===\n'
 python3 -m pip install --require-hashes -r "${REPO_ROOT}/requirements.lock"
 
 printf '\n=== Installing dev tools ===\n'
-python3 -m pip install -r "${REPO_ROOT}/requirements-dev.txt"
+# shellcheck disable=SC2086
+python3 -m pip install ${DEV_DEPS_HASH_FLAG} -r "${DEV_DEPS_FILE}"
 
 # ---------------------------------------------------------------------------
 # Restrict venv permissions (NIST SC-28)

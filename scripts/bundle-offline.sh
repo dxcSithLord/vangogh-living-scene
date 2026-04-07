@@ -173,6 +173,11 @@ if [[ "${ARCH}" != "aarch64" ]]; then
     )
 else
     printf 'INFO: Native aarch64 download\n'
+    PIP_ARGS+=(
+        --python-version "3.13"
+        --implementation "cp"
+        --abi "cp313"
+    )
 fi
 
 pip "${PIP_ARGS[@]}"
@@ -182,10 +187,12 @@ pip "${PIP_ARGS[@]}"
 # ---------------------------------------------------------------------------
 printf '\n=== Downloading TFLite models ===\n'
 
-curl -L "${PREDICT_URL}" -o "${STAGING}/models/style_predict_int8.tflite"
+curl -fL --retry 3 --retry-delay 5 "${PREDICT_URL}" \
+    -o "${STAGING}/models/style_predict_int8.tflite"
 verify_checksum "${STAGING}/models/style_predict_int8.tflite" "${PREDICT_SHA256}"
 
-curl -L "${TRANSFORM_URL}" -o "${STAGING}/models/style_transform_int8.tflite"
+curl -fL --retry 3 --retry-delay 5 "${TRANSFORM_URL}" \
+    -o "${STAGING}/models/style_transform_int8.tflite"
 verify_checksum "${STAGING}/models/style_transform_int8.tflite" "${TRANSFORM_SHA256}"
 
 # ---------------------------------------------------------------------------
@@ -193,7 +200,8 @@ verify_checksum "${STAGING}/models/style_transform_int8.tflite" "${TRANSFORM_SHA
 # ---------------------------------------------------------------------------
 printf '\n=== Downloading rembg model (RG-04: best-effort integrity) ===\n'
 
-curl -L "${REMBG_URL}" -o "${STAGING}/models/u2net_human_seg.onnx"
+curl -fL --retry 3 --retry-delay 5 "${REMBG_URL}" \
+    -o "${STAGING}/models/u2net_human_seg.onnx"
 
 if [[ ! -s "${STAGING}/models/u2net_human_seg.onnx" ]]; then
     printf 'ERROR: rembg model download failed or is empty.\n' >&2

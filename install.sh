@@ -56,7 +56,24 @@ else
     sudo apt install -y "${APT_PACKAGES[@]}"
 fi
 
-echo "=== Creating Python virtual environment ==="
+# ---------------------------------------------------------------------------
+# Python version check (DISA-STIG V-222602: validate prerequisites)
+# ---------------------------------------------------------------------------
+REQUIRED_MAJOR=3
+REQUIRED_MINOR=13
+
+PY_VERSION="$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')"
+PY_MAJOR="$(echo "${PY_VERSION}" | cut -d. -f1)"
+PY_MINOR="$(echo "${PY_VERSION}" | cut -d. -f2)"
+
+if [[ "${PY_MAJOR}" -lt "${REQUIRED_MAJOR}" ]] || \
+   { [[ "${PY_MAJOR}" -eq "${REQUIRED_MAJOR}" ]] && [[ "${PY_MINOR}" -lt "${REQUIRED_MINOR}" ]]; }; then
+    printf 'ERROR: Python %d.%d+ required, found %s\n' \
+        "${REQUIRED_MAJOR}" "${REQUIRED_MINOR}" "${PY_VERSION}" >&2
+    exit 1
+fi
+
+echo "=== Creating Python virtual environment (Python ${PY_VERSION}) ==="
 python3 -m venv venv --system-site-packages
 # shellcheck disable=SC1091
 source venv/bin/activate
@@ -64,14 +81,11 @@ source venv/bin/activate
 # SEC-04: Hash-pinned install for supply chain integrity (OWASP A08, FIPS 140-3)
 if [[ "${OFFLINE_MODE}" -eq 1 ]]; then
     echo "=== Installing Python packages (offline) ==="
-    python3 -m pip install --upgrade pip \
-        --no-index --find-links "${OFFLINE_BUNDLE}/pip-packages"
     python3 -m pip install --require-hashes \
         --no-index --find-links "${OFFLINE_BUNDLE}/pip-packages" \
         -r requirements.lock
 else
     echo "=== Installing Python packages ==="
-    python3 -m pip install --upgrade pip
     python3 -m pip install --require-hashes -r requirements.lock
 fi
 
@@ -138,15 +152,18 @@ verify_checksum models/style/style_transform_int8.tflite "$TRANSFORM_SHA256"
 # ---------------------------------------------------------------------------
 # rembg model (RG-04: no upstream hash pinning — accepted risk)
 # ---------------------------------------------------------------------------
+VANGOGH_HOME="$(getent passwd vangogh | cut -d: -f6)"
+REMBG_MODEL_DIR="${VANGOGH_HOME}/.u2net"
+
 if [[ "${OFFLINE_MODE}" -eq 1 ]]; then
     echo "=== Installing rembg model (offline) ==="
-    REMBG_MODEL_DIR="/home/vangogh/.u2net"
     sudo mkdir -p "${REMBG_MODEL_DIR}"
     sudo cp "${OFFLINE_BUNDLE}/models/u2net_human_seg.onnx" "${REMBG_MODEL_DIR}/"
     sudo chown -R vangogh:vangogh "${REMBG_MODEL_DIR}"
 else
     echo "=== Pre-downloading rembg model ==="
-    python3 -c "from rembg import new_session; new_session('u2net_human_seg')"
+    sudo -u vangogh HOME="${VANGOGH_HOME}" \
+        python3 -c "from rembg import new_session; new_session('u2net_human_seg')"
 fi
 
 echo "=== Configuring swap (512 MB) ==="

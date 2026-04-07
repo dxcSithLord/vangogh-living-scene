@@ -96,7 +96,7 @@ sha256sum vangogh-offline-bundle.tar.gz
 On the Pi:
 
 ```bash
-cd /home/vangogh/VanGaugh   # project directory
+cd <checkout-dir>            # e.g. /home/vangogh/vangogh-living-scene
 mkdir -p offline-bundle
 tar xzf vangogh-offline-bundle.tar.gz -C offline-bundle/
 ./install.sh
