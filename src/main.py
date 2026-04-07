@@ -36,10 +36,21 @@ logger = logging.getLogger(__name__)
 _WATCHDOG_INTERVAL_SECONDS: float = 120.0
 
 
+_STATM_PATH = Path("/proc/self/statm")
+
+
 def _rss_mb() -> float:
-    """Return current RSS in megabytes."""
-    usage = resource.getrusage(resource.RUSAGE_SELF)
-    return usage.ru_maxrss / 1024.0
+    """Return current RSS in megabytes.
+
+    Reads live RSS from /proc/self/statm (Linux). Falls back to
+    ru_maxrss (peak RSS) on non-Linux systems or read failure.
+    """
+    try:
+        resident_pages = int(_STATM_PATH.read_text(encoding="utf-8").split()[1])
+        return resident_pages * resource.getpagesize() / (1024.0 * 1024.0)
+    except (OSError, IndexError, ValueError):
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        return usage.ru_maxrss / 1024.0
 
 
 class Application:
@@ -50,6 +61,7 @@ class Application:
         self._project_root = project_root
         self._shutdown_event = threading.Event()
         self._rss_warning_mb: int = config["memory"]["rss_warning_mb"]
+        self._rss_alerted: bool = False
 
         # --- Security logger ---
         log_cfg = config.get("security_log", {})
@@ -108,8 +120,6 @@ class Application:
         self._active_slot_id: str | None = None
         # Cache last styled image for ghost re-entry (skip isolator+styler).
         self._last_styled: Image.Image | None = None
-        # De-duplicate RSS threshold breach events (reset when RSS drops back).
-        self._rss_alerted: bool = False
 
     def _check_rss(self, stage: str) -> float:
         """Log RSS and warn if it exceeds the configured threshold.
