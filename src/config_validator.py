@@ -11,6 +11,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from src.security_log import SecurityEvent, log_security_event
+
 logger = logging.getLogger(__name__)
 
 # --- Validation schema ---
@@ -171,6 +173,10 @@ def validate_or_exit(config: dict[str, Any], project_root: Path) -> None:
         logger.error("Config validation failed with %d error(s):", len(errors))
         for err in errors:
             logger.error("  - %s", err)
+        log_security_event(
+            SecurityEvent.CONFIG_VALIDATION_FAIL,
+            f"Config validation failed with {len(errors)} error(s)",
+        )
         sys.exit(1)
     logger.info("Config validation passed")
 
