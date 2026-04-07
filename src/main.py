@@ -108,9 +108,15 @@ class Application:
         self._active_slot_id: str | None = None
         # Cache last styled image for ghost re-entry (skip isolator+styler).
         self._last_styled: Image.Image | None = None
+        # De-duplicate RSS threshold breach events (reset when RSS drops back).
+        self._rss_alerted: bool = False
 
     def _check_rss(self, stage: str) -> float:
         """Log RSS and warn if it exceeds the configured threshold.
+
+        Emits a security event on the first breach. Subsequent calls while RSS
+        remains above threshold are suppressed to avoid alert noise. The flag
+        resets automatically when RSS drops back below the threshold.
 
         Args:
             stage: Human-readable label for the pipeline stage.
@@ -119,18 +125,23 @@ class Application:
             Current RSS in megabytes.
         """
         rss = _rss_mb()
-        logger.info("%s (RSS: %.0f MB)", stage, rss)
+        logger.debug("%s (RSS: %.0f MB)", stage, rss)
         if rss > self._rss_warning_mb:
-            logger.warning(
-                "RSS %.0f MB exceeds threshold %d MB after %s",
-                rss,
-                self._rss_warning_mb,
-                stage,
-            )
-            log_security_event(
-                SecurityEvent.ERROR_THRESHOLD_BREACH,
-                f"RSS {rss:.0f} MB exceeds {self._rss_warning_mb} MB after {stage}",
-            )
+            if not self._rss_alerted:
+                logger.warning(
+                    "RSS %.0f MB exceeds threshold %d MB after %s",
+                    rss,
+                    self._rss_warning_mb,
+                    stage,
+                )
+                log_security_event(
+                    SecurityEvent.ERROR_THRESHOLD_BREACH,
+                    f"RSS {rss:.0f} MB exceeds {self._rss_warning_mb} MB after {stage}",
+                )
+                self._rss_alerted = True
+        elif self._rss_alerted:
+            logger.info("RSS %.0f MB back below threshold %d MB", rss, self._rss_warning_mb)
+            self._rss_alerted = False
         return rss
 
     def _on_presence_event(self, event: Event, crop: Image.Image | None, ghost_hit: bool) -> None:
