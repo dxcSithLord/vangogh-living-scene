@@ -5,8 +5,8 @@
 > Completed work → `PLAN_HISTORY.md`.
 > Sprint definitions → `docs/plan/sprints.md`.
 
-Version: 3.4
-Last reviewed: 2026-04-07
+Version: 3.5
+Last reviewed: 2026-04-08
 
 ---
 
@@ -34,7 +34,7 @@ Top of kanban (snapshot — authoritative copy in `docs/plan/kanban.md`):
 | P7 | G-DOC-ARCH | Update ARCHITECTURE.md — ghost cache, RSS, fast path | — |
 | P7 | G-DOC-MODULES | Update modules.md — slots API, GhostCache, protocols | — |
 | P7 | G-DOC-SECURITY | Security reference docs — events, validation, limits | — |
-| **P8** | **G-INSTALL-DOC** | **Offline install pipeline + dev setup + docs** | **PR #47** |
+| ~~P8~~ | ~~G-INSTALL-DOC~~ | ~~Offline install pipeline + dev setup + docs~~ | ~~PR #47~~ |
 
 ---
 

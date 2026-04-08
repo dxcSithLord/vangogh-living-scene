@@ -5,7 +5,7 @@
 > Before making code changes: confirm the sprint matches
 > `docs/plan/sprints.md` per CLAUDE.md "Before writing code" rule #3.
 
-Last reviewed: 2026-04-07 (Sprint 7 in progress, 3 doc cards added)
+Last reviewed: 2026-04-08 (Sprint 7: P1–P8 done, P7 doc cards remain)
 
 ---
 
@@ -84,7 +84,7 @@ Cards at the same level can run in parallel; work lower levels after higher.
 | **P7** | G-DOC-ARCH | Update ARCHITECTURE.md — ghost cache, RSS checks, fast path, error recovery | — | `gap/g-doc-arch` | `ARCHITECTURE.md`, `docs/plan/architecture.md` |
 | **P7** | G-DOC-MODULES | Update modules.md — slots API, GhostCache, EventCallback, DisplayProtocol | — | `gap/g-doc-modules` | `docs/modules.md` |
 | **P7** | G-DOC-SECURITY | Security reference docs — event catalog, validation rules, resource limits | — | `gap/g-doc-security` | `docs/` (new files) |
-| **P8** | G-INSTALL-DOC | Offline install pipeline + refresh `docs/plan/install.md` | — | `gap/g-install-doc` | `docs/`, `scripts/` | ⏳ PR #47 open |
+| ~~P8~~ | ~~G-INSTALL-DOC~~ | ~~Offline install pipeline + refresh `docs/plan/install.md`~~ | — | ✅ Done (#47) | — |
 
 ### Card notes
 
@@ -174,9 +174,7 @@ Authoritative sources to sync against: `install.sh`, `requirements.lock`,
 
 ## In-progress
 
-| Pri | ID | Title | PR | Status |
-|---|---|---|---|---|
-| P8 | G-INSTALL-DOC | Offline install pipeline + dev setup + docs refresh | #47 | CodeRabbit review findings addressed, awaiting re-review |
+(none)
 
 ---
 
@@ -186,6 +184,7 @@ Full history in `PLAN_HISTORY.md`.
 
 | ID | Title | PR | Merged |
 |---|---|---|---|
+| **G-INSTALL-DOC** | Offline install pipeline + dev setup + docs refresh | #47 | 2026-04-08 |
 | **G-COMPLY-VERSIONS** | Closed as redundant — folded into G-INSTALL-DOC | — | 2026-04-07 |
 | **G-VERIFY** | Verification tasks: #13 ✅ #20 ✅ closed, #11 spawns follow-up | — | 2026-04-07 |
 | **G-CONFIG-EVT** | Emit CONFIG_VALIDATION_FAIL + fix init order (closes #18) | #46 | 2026-04-07 |
