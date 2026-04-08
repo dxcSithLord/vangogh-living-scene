@@ -84,6 +84,7 @@ Cards at the same level can run in parallel; work lower levels after higher.
 | **P7** | G-DOC-ARCH | Update ARCHITECTURE.md — ghost cache, RSS checks, fast path, error recovery | — | `gap/g-doc-arch` | `ARCHITECTURE.md`, `docs/plan/architecture.md` |
 | **P7** | G-DOC-MODULES | Update modules.md — slots API, GhostCache, EventCallback, DisplayProtocol | — | `gap/g-doc-modules` | `docs/modules.md` |
 | **P7** | G-DOC-SECURITY | Security reference docs — event catalog, validation rules, resource limits | — | `gap/g-doc-security` | `docs/` (new files) |
+| **P6** | G-INSTALL-UMASK | Add `umask 0077` to `install.sh` (CIS L2 compliance) | — | `gap/g-install-umask` | `install.sh` |
 | ~~P8~~ | ~~G-INSTALL-DOC~~ | ~~Offline install pipeline + refresh `docs/plan/install.md`~~ | — | ✅ Done (#47) | — |
 
 ### Card notes

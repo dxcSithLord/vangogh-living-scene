@@ -131,8 +131,7 @@ VanGaugh/
 
 ### Bash script standards
 
-All bash scripts (`install.sh`, `scripts/*.sh`) should comply with
-(tracked in kanban — `install.sh` `umask 0077` outstanding):
+All bash scripts (`install.sh`, `scripts/*.sh`) must comply with:
 
 - `set -euo pipefail` and `umask 0077` (CIS L2)
 - Input validation on all arguments and paths (DISA-STIG V-222602)
