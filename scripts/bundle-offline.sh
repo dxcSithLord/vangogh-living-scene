@@ -177,6 +177,7 @@ else
         --python-version "3.13"
         --implementation "cp"
         --abi "cp313"
+        --only-binary=":all:"
     )
 fi
 
@@ -233,7 +234,8 @@ BUNDLE_SHA256="$(sha256sum "${OUTPUT_PATH}" | awk '{print $1}')"
 
 printf '\n=== Bundle created successfully ===\n'
 printf 'File:     %s\n' "${OUTPUT_PATH}"
-printf 'Size:     %s bytes (%.0f MB)\n' "${BUNDLE_SIZE}" "$(echo "${BUNDLE_SIZE} / 1048576" | bc)"
+BUNDLE_MB=$(( BUNDLE_SIZE / 1048576 ))
+printf 'Size:     %s bytes (~%d MB)\n' "${BUNDLE_SIZE}" "${BUNDLE_MB}"
 printf 'SHA-256:  %s\n' "${BUNDLE_SHA256}"
 printf '\nVerify after transfer: sha256sum %s\n' "$(basename "${OUTPUT_PATH}")"
 printf 'Expected: %s\n' "${BUNDLE_SHA256}"

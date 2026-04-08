@@ -66,10 +66,12 @@ PY_VERSION="$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.vers
 PY_MAJOR="$(echo "${PY_VERSION}" | cut -d. -f1)"
 PY_MINOR="$(echo "${PY_VERSION}" | cut -d. -f2)"
 
-if [[ "${PY_MAJOR}" -lt "${REQUIRED_MAJOR}" ]] || \
-   { [[ "${PY_MAJOR}" -eq "${REQUIRED_MAJOR}" ]] && [[ "${PY_MINOR}" -lt "${REQUIRED_MINOR}" ]]; }; then
-    printf 'ERROR: Python %d.%d+ required, found %s\n' \
+if [[ "${PY_MAJOR}" -ne "${REQUIRED_MAJOR}" ]] || \
+   [[ "${PY_MINOR}" -ne "${REQUIRED_MINOR}" ]]; then
+    printf 'ERROR: Python %d.%d required (exact), found %s\n' \
         "${REQUIRED_MAJOR}" "${REQUIRED_MINOR}" "${PY_VERSION}" >&2
+    printf 'Wheels are bundled for cp%d%d only.\n' \
+        "${REQUIRED_MAJOR}" "${REQUIRED_MINOR}" >&2
     exit 1
 fi
 
@@ -163,7 +165,8 @@ if [[ "${OFFLINE_MODE}" -eq 1 ]]; then
 else
     echo "=== Pre-downloading rembg model ==="
     sudo -u vangogh HOME="${VANGOGH_HOME}" \
-        python3 -c "from rembg import new_session; new_session('u2net_human_seg')"
+        "${SCRIPT_DIR}/venv/bin/python3" -c \
+        "from rembg import new_session; new_session('u2net_human_seg')"
 fi
 
 echo "=== Configuring swap (512 MB) ==="

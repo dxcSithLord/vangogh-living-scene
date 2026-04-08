@@ -43,10 +43,12 @@ PY_VERSION="$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.vers
 PY_MAJOR="$(echo "${PY_VERSION}" | cut -d. -f1)"
 PY_MINOR="$(echo "${PY_VERSION}" | cut -d. -f2)"
 
-if [[ "${PY_MAJOR}" -lt "${REQUIRED_MAJOR}" ]] || \
-   { [[ "${PY_MAJOR}" -eq "${REQUIRED_MAJOR}" ]] && [[ "${PY_MINOR}" -lt "${REQUIRED_MINOR}" ]]; }; then
-    printf 'ERROR: Python %d.%d+ required, found %s\n' \
+if [[ "${PY_MAJOR}" -ne "${REQUIRED_MAJOR}" ]] || \
+   [[ "${PY_MINOR}" -ne "${REQUIRED_MINOR}" ]]; then
+    printf 'ERROR: Python %d.%d required (exact), found %s\n' \
         "${REQUIRED_MAJOR}" "${REQUIRED_MINOR}" "${PY_VERSION}" >&2
+    printf 'Wheels are bundled for cp%d%d only.\n' \
+        "${REQUIRED_MAJOR}" "${REQUIRED_MINOR}" >&2
     exit 1
 fi
 
