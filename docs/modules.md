@@ -72,7 +72,8 @@ directly after startup.
   occupied), or `None` if all full.
 - `SlotManager.release_slot(slot_id)` → marks slot as free.
 - `SlotManager.get_slot(slot_id)` → returns `Slot` by ID, or `None`.
-- `SlotManager.all_slots` → list of all slots. `free_count` → int.
+- `SlotManager.all_slots` (property) → list of all slots.
+  `SlotManager.free_count` (property) → number of unoccupied slots.
 - Slot JSON schema: `{"id": "left_table", "x": 420, "y": 680, "width": 160, "height": 200}`
 
 ## `display.py`
