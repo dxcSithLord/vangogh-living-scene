@@ -68,6 +68,9 @@ vangogh-living-scene/
     ├── modules.md               ← module responsibilities (all 9 modules)
     ├── models.md                ← model specs (detection, style, rembg)
     ├── references.md            ← external reference URLs
+    ├── security-events.md       ← security event catalog (6 events)
+    ├── config-validation.md     ← config validation rules reference
+    ├── security-limits.md       ← resource limits reference
     └── plan/
         ├── gap-analysis.md      ← 8 verified assumptions from research
         ├── architecture.md      ← system diagram + memory sequence
@@ -93,6 +96,9 @@ vangogh-living-scene/
 | Install process (online, offline, dev) and model URLs | `docs/plan/install.md` |
 | Known risks and mitigations | `docs/plan/risks.md` |
 | Security policy and standards traceability | `SECURITY-POLICY.md` |
+| Security event catalog (all 6 events, emitters, severity) | `docs/security-events.md` |
+| Config validation rules (ranges, strings, paths) | `docs/config-validation.md` |
+| Resource limits (image, file size, memory, systemd) | `docs/security-limits.md` |
 
 ---
 
