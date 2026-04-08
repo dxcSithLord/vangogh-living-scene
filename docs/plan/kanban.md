@@ -5,7 +5,7 @@
 > Before making code changes: confirm the sprint matches
 > `docs/plan/sprints.md` per CLAUDE.md "Before writing code" rule #3.
 
-Last reviewed: 2026-04-08 (Sprint 7: P1–P6, P8, G-DOC done; 3 P7 doc cards + G-INSTALL-UMASK remain)
+Last reviewed: 2026-04-08 (Sprint 7: P1–P6, P8, G-DOC, G-DOC-ARCH done; 2 P7 doc cards + G-INSTALL-UMASK remain)
 
 ---
 
@@ -81,7 +81,7 @@ Cards at the same level can run in parallel; work lower levels after higher.
 | ~~P5~~ | ~~G-VERIFY~~ | ~~Verification tasks (read-only)~~ | ~~#11 #13 #20~~ | ✅ Done (see notes) | — |
 | ~~P6~~ | ~~G-COMPLY-VERSIONS~~ | ~~Pre-flight tool-version check~~ | — | ✅ Closed (redundant, see notes) | — |
 | ~~P7~~ | ~~G-DOC~~ | ~~Docs cleanup (omnibus or per-issue)~~ | ~~#3 #5 #9 #10 #12 #14 #15 #19~~ | ✅ Done (#49) | — |
-| **P7** | G-DOC-ARCH | Update ARCHITECTURE.md — ghost cache, RSS checks, fast path, error recovery | — | `gap/g-doc-arch` | `ARCHITECTURE.md`, `docs/plan/architecture.md` |
+| ~~P7~~ | ~~G-DOC-ARCH~~ | ~~Update ARCHITECTURE.md — ghost cache, RSS checks, fast path, error recovery~~ | — | ✅ Done (#50) | — |
 | **P7** | G-DOC-MODULES | Update modules.md — slots API, GhostCache, EventCallback, DisplayProtocol | — | `gap/g-doc-modules` | `docs/modules.md` |
 | **P7** | G-DOC-SECURITY | Security reference docs — event catalog, validation rules, resource limits | — | `gap/g-doc-security` | `docs/` (new files) |
 | **P6** | G-INSTALL-UMASK | Add `umask 0077` to `install.sh` (CIS L2 compliance) | — | `gap/g-install-umask` | `install.sh` |
@@ -185,6 +185,7 @@ Full history in `PLAN_HISTORY.md`.
 
 | ID | Title | PR | Merged |
 |---|---|---|---|
+| **G-DOC-ARCH** | ARCHITECTURE.md refresh — ghost cache, RSS, fast path, error recovery | #50 | 2026-04-08 |
 | **G-DOC** | Docs cleanup: 8 gap-analysis issues (closes #3,#5,#9,#10,#12,#14,#15,#19) | #49 | 2026-04-08 |
 | **G-INSTALL-DOC** | Offline install pipeline + dev setup + docs refresh | #47 | 2026-04-08 |
 | **G-COMPLY-VERSIONS** | Closed as redundant — folded into G-INSTALL-DOC | — | 2026-04-07 |
