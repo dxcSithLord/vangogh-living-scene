@@ -17,7 +17,7 @@ class SecurityEvent(Enum):
     """Recognised security event types."""
 
     CONFIG_VALIDATION_FAIL = "CONFIG_VALIDATION_FAIL"
-    CHECKSUM_MISMATCH = "CHECKSUM_MISMATCH"
+    CHECKSUM_MISMATCH = "CHECKSUM_MISMATCH"  # build-time only (install.sh, bundle-offline.sh)
     ERROR_THRESHOLD_BREACH = "ERROR_THRESHOLD_BREACH"
     BOUNDS_VIOLATION = "BOUNDS_VIOLATION"
     INVALID_FILE_TYPE = "INVALID_FILE_TYPE"

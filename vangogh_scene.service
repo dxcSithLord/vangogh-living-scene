@@ -11,8 +11,8 @@ Wants=multi-user.target
 Type=notify
 User=vangogh
 Group=vangogh
-WorkingDirectory=/home/vangogh/VanGaugh
-ExecStart=/home/vangogh/VanGaugh/venv/bin/python -m src.main
+WorkingDirectory=/home/vangogh/vangogh-living-scene
+ExecStart=/home/vangogh/vangogh-living-scene/venv/bin/python -m src.main
 Environment=PYTHONUNBUFFERED=1
 
 # --- Restart policy ---
@@ -33,7 +33,7 @@ MemoryHigh=460M
 ProtectSystem=strict
 ProtectHome=yes
 PrivateTmp=yes
-ReadOnlyPaths=/home/vangogh/VanGaugh
+ReadOnlyPaths=/home/vangogh/vangogh-living-scene
 ReadWritePaths=/var/log/vangogh
 
 # --- Kernel hardening ---

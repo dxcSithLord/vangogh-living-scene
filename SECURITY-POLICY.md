@@ -54,7 +54,7 @@ applicability is limited to build-time integrity verification:
 | SEC-04 | pip hash pinning — `requirements.lock` with `--require-hashes` | Medium | OWASP A08, FIPS 140-3 | 2.5 | **Done** |
 | SEC-05 | Pillow/numpy/deps upgraded for Python 3.13 + CVE fixes | Medium | OWASP A06 | 2.5 | **Done** |
 | SEC-06 | Security audit logging — dedicated security event logger | Medium | OWASP A09, NIST AU-3 | 3 | **Done** |
-| SEC-07 | Unit tests for Sprint 1–3 modules (39 unit + 8 integration = 47 tests) | Medium | NIST SA-11 | 3–4 | **Done** |
+| SEC-07 | Unit tests for Sprint 1–4 modules (48 tests across 8 test files) | Medium | NIST SA-11 | 3–4 | **Done** |
 | SEC-08 | Error loop bounded in camera.py `run_loop` (max 50) | Medium | DISA-STIG V-222659 | 2.5 | **Done** |
 | SEC-09 | Slot tool validates dimensions (positive, within image) | Medium | DISA-STIG V-222612 | 2.5 | **Done** |
 | SEC-10 | Core dumps restricted (`ulimit -c 0`) | Medium | CIS L2 | 2.5 | **Done** |
@@ -74,7 +74,7 @@ Added in Sprint 3 (SEC-06). Emitted to a dedicated `security` logger.
 | Event | Trigger | Severity |
 |-------|---------|----------|
 | `CONFIG_VALIDATION_FAIL` | Malformed or out-of-range config value at startup | ERROR |
-| `CHECKSUM_MISMATCH` | Model file fails SHA-256 verification | CRITICAL |
+| `CHECKSUM_MISMATCH` | Model file fails SHA-256 verification (build-time only: `install.sh`, `bundle-offline.sh`) | CRITICAL |
 | `ERROR_THRESHOLD_BREACH` | Consecutive error count exceeds cap in camera loop | WARNING |
 | `BOUNDS_VIOLATION` | Slot coordinates or dimensions fail validation | WARNING |
 | `INVALID_FILE_TYPE` | Image file fails magic byte check | WARNING |

@@ -18,8 +18,7 @@ directly after startup.
 ## `presence.py`
 
 - Consumes the crop queue from `camera.py`.
-- Implements the state machine: ABSENT → ENTERING → PROCESSING → PRESENT →
-  EXITING → ABSENT.
+- Implements the state machine: ABSENT → ENTERING → PRESENT → EXITING → ABSENT.
 - Emits `ENTERED(crop)` and `EXITED()` events to `main.py`.
 - Maintains a TTL-based cache of the last styled figure for ghost re-entry.
 - Does **not** do any image processing.
@@ -27,7 +26,6 @@ directly after startup.
 **State definitions:**
 - `ABSENT` — no detection in current window
 - `ENTERING` — detected in last N consecutive frames, not yet confirmed
-- `PROCESSING` — confirmed entry; pipeline running; display not yet updated
 - `PRESENT` — figure is currently shown on the display
 - `EXITING` — subject not seen for M frames; grace period before removal
 - (back to `ABSENT` after timeout)
@@ -81,8 +79,9 @@ directly after startup.
 
 ## `tools/define_slots.py`
 
-- CLI tool. Can run on any machine with PIL (not Pi-specific).
-- Usage: `python tools/define_slots.py path/to/background.png`
+- Standalone CLI tool. Can run on any machine with PIL (not Pi-specific).
+- Invoked directly: `python tools/define_slots.py path/to/background.png`
+  (no `__init__.py` needed — `tools/` is not a Python package).
 - Opens the image, prints coordinates as user clicks, writes JSON.
 - Slots are named interactively.
 - Stores output next to the background file as `<name>_slots.json`.

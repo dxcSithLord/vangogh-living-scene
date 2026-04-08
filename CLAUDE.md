@@ -25,7 +25,7 @@ Impression 13.3" e-ink display. Runs **offline, no network required at runtime**
 ## Repository structure
 
 ```
-VanGaugh/
+vangogh-living-scene/
 ├── CLAUDE.md                    ← this file
 ├── ARCHITECTURE.md              ← living architecture doc (update each sprint)
 ├── SECURITY-POLICY.md           ← standards traceability (NIST, OWASP, CIS, FIPS)
@@ -40,7 +40,7 @@ VanGaugh/
 │   └── config.yaml
 ├── assets/
 │   ├── backgrounds/
-│   │   └── cafe_terrace.png     ← 1600×1200, user-supplied
+│   │   └── van_gogh_cafe.jpg     ← 1600×1200, user-supplied
 │   └── slots/
 │       └── cafe_terrace_slots.json
 ├── models/
