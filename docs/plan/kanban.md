@@ -5,7 +5,7 @@
 > Before making code changes: confirm the sprint matches
 > `docs/plan/sprints.md` per CLAUDE.md "Before writing code" rule #3.
 
-Last reviewed: 2026-04-08 (Sprint 7: P1–P6 and P8 done; P7 doc cards remain)
+Last reviewed: 2026-04-08 (Sprint 7: P1–P6, P8, G-DOC done; 3 P7 doc cards + G-INSTALL-UMASK remain)
 
 ---
 
@@ -80,7 +80,7 @@ Cards at the same level can run in parallel; work lower levels after higher.
 | ~~P4~~ | ~~G-CONFIG-EVT~~ | ~~Emit `CONFIG_VALIDATION_FAIL` security event + fix init order~~ | ~~#18~~ | ✅ Done (#46) | — |
 | ~~P5~~ | ~~G-VERIFY~~ | ~~Verification tasks (read-only)~~ | ~~#11 #13 #20~~ | ✅ Done (see notes) | — |
 | ~~P6~~ | ~~G-COMPLY-VERSIONS~~ | ~~Pre-flight tool-version check~~ | — | ✅ Closed (redundant, see notes) | — |
-| **P7** | G-DOC | Docs cleanup (omnibus or per-issue) | #3 #5 #9 #10 #12 #14 #15 #19 | `gap/g-doc-*` | docs only |
+| ~~P7~~ | ~~G-DOC~~ | ~~Docs cleanup (omnibus or per-issue)~~ | ~~#3 #5 #9 #10 #12 #14 #15 #19~~ | ✅ Done (#49) | — |
 | **P7** | G-DOC-ARCH | Update ARCHITECTURE.md — ghost cache, RSS checks, fast path, error recovery | — | `gap/g-doc-arch` | `ARCHITECTURE.md`, `docs/plan/architecture.md` |
 | **P7** | G-DOC-MODULES | Update modules.md — slots API, GhostCache, EventCallback, DisplayProtocol | — | `gap/g-doc-modules` | `docs/modules.md` |
 | **P7** | G-DOC-SECURITY | Security reference docs — event catalog, validation rules, resource limits | — | `gap/g-doc-security` | `docs/` (new files) |
@@ -185,6 +185,7 @@ Full history in `PLAN_HISTORY.md`.
 
 | ID | Title | PR | Merged |
 |---|---|---|---|
+| **G-DOC** | Docs cleanup: 8 gap-analysis issues (closes #3,#5,#9,#10,#12,#14,#15,#19) | #49 | 2026-04-08 |
 | **G-INSTALL-DOC** | Offline install pipeline + dev setup + docs refresh | #47 | 2026-04-08 |
 | **G-COMPLY-VERSIONS** | Closed as redundant — folded into G-INSTALL-DOC | — | 2026-04-07 |
 | **G-VERIFY** | Verification tasks: #13 ✅ #20 ✅ closed, #11 spawns follow-up | — | 2026-04-07 |
