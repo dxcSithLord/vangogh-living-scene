@@ -99,6 +99,14 @@ if [[ ! -d "${OUTPUT_DIR}" ]]; then
     printf 'ERROR: Output directory does not exist: %s\n' "${OUTPUT_DIR}" >&2
     exit 1
 fi
+if [[ ! -w "${OUTPUT_DIR}" ]]; then
+    printf 'ERROR: Output directory is not writable: %s\n' "${OUTPUT_DIR}" >&2
+    exit 1
+fi
+if [[ -e "${OUTPUT_PATH}" ]] && [[ ! -w "${OUTPUT_PATH}" ]]; then
+    printf 'ERROR: Output file exists and is not writable: %s\n' "${OUTPUT_PATH}" >&2
+    exit 1
+fi
 
 # ---------------------------------------------------------------------------
 # Prerequisite checks
@@ -210,7 +218,8 @@ if [[ ! -s "${STAGING}/models/u2net_human_seg.onnx" ]]; then
     exit 1
 fi
 
-printf 'Downloaded rembg model: %s bytes\n' "$(stat -c%s "${STAGING}/models/u2net_human_seg.onnx")"
+REMBG_SIZE="$(wc -c < "${STAGING}/models/u2net_human_seg.onnx")"
+printf 'Downloaded rembg model: %s bytes\n' "${REMBG_SIZE}"
 
 # ---------------------------------------------------------------------------
 # 4. Generate SHA-256 manifest (NIST SI-7)
@@ -229,7 +238,7 @@ printf '\n=== Creating bundle archive ===\n'
 
 tar -czf "${OUTPUT_PATH}" -C "${STAGING}" .
 
-BUNDLE_SIZE="$(stat -c%s "${OUTPUT_PATH}")"
+BUNDLE_SIZE="$(wc -c < "${OUTPUT_PATH}")"
 BUNDLE_SHA256="$(sha256sum "${OUTPUT_PATH}" | awk '{print $1}')"
 
 printf '\n=== Bundle created successfully ===\n'
