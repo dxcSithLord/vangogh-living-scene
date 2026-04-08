@@ -32,6 +32,9 @@ See `PROJECT_PLAN.md` for current module and sprint status.
 5. **Compositor** pastes the styled RGBA figure into a slot on the background
 6. **Display** sends the composited scene to the Inky Impression e-ink panel
 
+On ghost re-entry (subject returns within `ghost_ttl_seconds`), steps 3–4
+are skipped and the cached styled image is composited directly.
+
 ## Memory layout (512 MB total)
 
 ```
@@ -47,9 +50,22 @@ Peak during style transfer ~486 MB
 
 The TFLite interpreter is created per-inference and explicitly destroyed
 with `gc.collect()` to stay within the ~512 MB envelope. RSS is enforced
-in the main event loop via `_check_rss()` after each processing stage; a
-WARNING and `ERROR_THRESHOLD_BREACH` security event are emitted if RSS
-exceeds the configured `memory.rss_warning_mb` threshold (default 460 MB).
+in the main event loop via `_check_rss()`, which logs current RSS at
+DEBUG level and emits a WARNING + `ERROR_THRESHOLD_BREACH` security event
+on the first breach of `memory.rss_warning_mb` (default 460 MB). The alert
+auto-resets when RSS drops back below the threshold.
+
+`_check_rss()` instrumentation points:
+
+| Call site | Stage label |
+|-----------|-------------|
+| `Application.__init__` | After rembg session load |
+| `Application.__init__` | After Styler init |
+| `_handle_entered` | Before pipeline start (slot assigned) |
+| `_handle_entered` | After isolation (rembg) |
+| `_handle_entered` | After style transfer |
+| `_handle_entered` | After compositing |
+| `_watchdog_loop` | Each watchdog ping (every 120 s) |
 
 ## Sprint 2 — Camera and presence details
 
@@ -79,11 +95,18 @@ stateDiagram-v2
 
 - **Debounce**: `entering_frames` (default 8) consecutive detections to confirm
   entry. `exiting_frames` (default 30) consecutive misses to confirm exit.
-- **Ghost cache**: On exit, the last crop is cached with a TTL
-  (`ghost_ttl_seconds`, default 300 s). If the same subject re-enters within
-  the TTL, the cached crop is reused to skip re-processing.
-- **Event callback**: `ENTERED(crop)` and `EXITED()` events are delivered to
-  `main.py` via a callback function.
+- **Ghost cache (dual-system)**: Two caches work together to enable fast
+  re-entry without re-running the expensive isolator and styler pipeline:
+  - `_GhostCache` in `presence.py` — stores **raw crops** with a TTL
+    (`ghost_ttl_seconds`, default 300 s). Continuously refreshed while the
+    subject is PRESENT. On re-entry within TTL, the `ghost_hit` flag is set
+    `True` in the event callback.
+  - `_last_styled` in `main.py` — stores the **styled image** from the last
+    full pipeline run. Retained across EXITED events. When `ghost_hit=True`,
+    the styled image is reused directly, skipping isolator and styler
+    entirely. Overwritten on the next full pipeline run when `ghost_hit=False`.
+- **Event callback**: `ENTERED(crop, ghost_hit)` and `EXITED()` events are
+  delivered to `main.py` via an `EventCallback` (type alias in `presence.py`).
 - Presence ticks at 5 Hz (0.2 s interval), draining the detection queue each
   tick.
 
@@ -166,9 +189,18 @@ embedded IoT device. Full standards traceability is documented in
   init slots/compositor/display → create rembg session → init styler →
   start camera → start presence loop.
 - Presence callback `_on_presence_event` dispatches ENTERED/EXITED events.
-- **ENTERED**: isolate (rembg) → style (TFLite) → composite → display.
-  Intermediate images freed with `del` + `gc.collect()`.
+- **ENTERED (full pipeline)**: isolate (rembg) → style (TFLite) → composite
+  → display. Intermediate images freed with `del` + `gc.collect()`. The
+  styled result is cached in `_last_styled` for ghost re-entry.
+- **ENTERED (ghost fast path)**: when `ghost_hit=True` and `_last_styled`
+  exists, the isolator and styler are skipped entirely. The cached styled
+  image is composited and displayed directly, saving 45–120 s of processing.
 - **EXITED**: remove figure → release slot → re-render background → display.
+  `_last_styled` is intentionally retained (TTL in presence gates reuse).
+- **Error recovery**: if the pipeline raises an exception during ENTERED
+  processing, the assigned slot is released and `_active_slot_id` is cleared
+  so the slot can be reused. An `ERROR_THRESHOLD_BREACH` security event is
+  emitted.
 - Watchdog loop sends `WATCHDOG=1` to systemd every 120 s.
 - Graceful shutdown on SIGTERM/SIGINT: stops presence, stops camera,
   joins threads with 5 s timeout.
