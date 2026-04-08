@@ -152,13 +152,15 @@ verify_checksum models/style/style_predict_int8.tflite "$PREDICT_SHA256"
 verify_checksum models/style/style_transform_int8.tflite "$TRANSFORM_SHA256"
 
 # ---------------------------------------------------------------------------
-# rembg model (RG-04: no upstream hash pinning — accepted risk)
+# rembg model (RG-04: self-computed hash, keep in sync with bundle-offline.sh)
 # ---------------------------------------------------------------------------
+REMBG_SHA256="01eb6a29a5c4d8edb30b56adad9bb3a2a0535338e480724a213e0acfd2d1c73c"
 VANGOGH_HOME="$(getent passwd vangogh | cut -d: -f6)"
 REMBG_MODEL_DIR="${VANGOGH_HOME}/.u2net"
 
 if [[ "${OFFLINE_MODE}" -eq 1 ]]; then
     echo "=== Installing rembg model (offline) ==="
+    verify_checksum "${OFFLINE_BUNDLE}/models/u2net_human_seg.onnx" "$REMBG_SHA256"
     sudo mkdir -p "${REMBG_MODEL_DIR}"
     sudo cp "${OFFLINE_BUNDLE}/models/u2net_human_seg.onnx" "${REMBG_MODEL_DIR}/"
     sudo chown -R vangogh:vangogh "${REMBG_MODEL_DIR}"

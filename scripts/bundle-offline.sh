@@ -41,8 +41,9 @@ TRANSFORM_URL="https://storage.googleapis.com/download.tensorflow.org/models/tfl
 PREDICT_SHA256="af6ad4b2e7aeba0675f32636082ab915ced5375229a3f8aff7e714c6213f5ed2"
 TRANSFORM_SHA256="7a1550643cf034a4d813c0aa276976cd15da4141b4f1ec3631db1d0d9c8e2cd1"
 
-# RG-04: rembg model — best-effort hash (no upstream pinning available).
+# RG-04: rembg model — self-computed hash (upstream publishes no checksum).
 REMBG_URL="https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2net_human_seg.onnx"
+REMBG_SHA256="01eb6a29a5c4d8edb30b56adad9bb3a2a0535338e480724a213e0acfd2d1c73c"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
@@ -111,12 +112,38 @@ fi
 # ---------------------------------------------------------------------------
 # Prerequisite checks
 # ---------------------------------------------------------------------------
-for cmd in pip curl sha256sum tar; do
+for cmd in pip curl tar; do
     if ! command -v "${cmd}" >/dev/null 2>&1; then
         printf 'ERROR: Required command not found: %s\n' "${cmd}" >&2
         exit 1
     fi
 done
+
+# ---------------------------------------------------------------------------
+# Portable SHA-256 helper (build host may be macOS/BSD, not just GNU/Linux)
+# Output normalised to coreutils format: "<hash>  <file>"
+# ---------------------------------------------------------------------------
+sha256_file() {
+    local file="${1}"
+    if command -v sha256sum >/dev/null 2>&1; then
+        sha256sum "${file}"
+    elif command -v shasum >/dev/null 2>&1; then
+        shasum -a 256 "${file}"
+    elif command -v openssl >/dev/null 2>&1; then
+        # openssl outputs "SHA256(file)= <hash>" — normalise
+        local hash
+        hash="$(openssl dgst -sha256 -r "${file}" | awk '{print $1}')"
+        printf '%s  %s\n' "${hash}" "${file}"
+    else
+        printf 'ERROR: No SHA-256 tool found (tried sha256sum, shasum, openssl).\n' >&2
+        exit 1
+    fi
+}
+
+sha256_hash() {
+    # Return just the hash for a file (no filename)
+    sha256_file "${1}" | awk '{print $1}'
+}
 
 if [[ ! -f "${REPO_ROOT}/requirements.lock" ]]; then
     printf 'ERROR: requirements.lock not found at %s\n' "${REPO_ROOT}" >&2
@@ -145,7 +172,7 @@ verify_checksum() {
     local file="${1}"
     local expected="${2}"
     local actual
-    actual="$(sha256sum "${file}" | awk '{print $1}')"
+    actual="$(sha256_hash "${file}")"
     if [[ "${actual}" != "${expected}" ]]; then
         printf 'CRITICAL: Checksum mismatch for %s\n' "${file}" >&2
         printf '  Expected: %s\n' "${expected}" >&2
@@ -205,9 +232,9 @@ curl -fL --retry 3 --retry-delay 5 "${TRANSFORM_URL}" \
 verify_checksum "${STAGING}/models/style_transform_int8.tflite" "${TRANSFORM_SHA256}"
 
 # ---------------------------------------------------------------------------
-# 3. Download rembg model (RG-04: best-effort, no upstream hash pinning)
+# 3. Download rembg model (RG-04: self-computed hash, no upstream checksum)
 # ---------------------------------------------------------------------------
-printf '\n=== Downloading rembg model (RG-04: best-effort integrity) ===\n'
+printf '\n=== Downloading rembg model (RG-04: self-computed hash) ===\n'
 
 curl -fL --retry 3 --retry-delay 5 "${REMBG_URL}" \
     -o "${STAGING}/models/u2net_human_seg.onnx"
@@ -218,6 +245,8 @@ if [[ ! -s "${STAGING}/models/u2net_human_seg.onnx" ]]; then
     exit 1
 fi
 
+verify_checksum "${STAGING}/models/u2net_human_seg.onnx" "${REMBG_SHA256}"
+
 REMBG_SIZE="$(wc -c < "${STAGING}/models/u2net_human_seg.onnx")"
 printf 'Downloaded rembg model: %s bytes\n' "${REMBG_SIZE}"
 
@@ -226,7 +255,10 @@ printf 'Downloaded rembg model: %s bytes\n' "${REMBG_SIZE}"
 # ---------------------------------------------------------------------------
 printf '\n=== Generating SHA256SUMS manifest ===\n'
 
-(cd "${STAGING}" && find . -type f ! -name 'SHA256SUMS' -exec sha256sum {} + > SHA256SUMS)
+# Generate manifest — sha256_file is available in the subshell fork
+(cd "${STAGING}" && while IFS= read -r -d '' f; do
+    sha256_file "${f}"
+done < <(find . -type f ! -name 'SHA256SUMS' -print0) > SHA256SUMS)
 
 MANIFEST_COUNT="$(wc -l < "${STAGING}/SHA256SUMS")"
 printf 'Manifest contains %s entries\n' "${MANIFEST_COUNT}"
@@ -239,7 +271,7 @@ printf '\n=== Creating bundle archive ===\n'
 tar -czf "${OUTPUT_PATH}" -C "${STAGING}" .
 
 BUNDLE_SIZE="$(wc -c < "${OUTPUT_PATH}")"
-BUNDLE_SHA256="$(sha256sum "${OUTPUT_PATH}" | awk '{print $1}')"
+BUNDLE_SHA256="$(sha256_hash "${OUTPUT_PATH}")"
 
 printf '\n=== Bundle created successfully ===\n'
 printf 'File:     %s\n' "${OUTPUT_PATH}"
