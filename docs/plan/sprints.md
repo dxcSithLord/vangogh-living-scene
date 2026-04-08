@@ -14,7 +14,7 @@
 - `tools/define_slots.py` — interactive CLI: load image, click to place named slots, saves JSON
 - `assets/slots/cafe_terrace_slots.json` — initial slot definitions
 
-**Test:** Run `python tools/define_slots.py assets/backgrounds/cafe_terrace.png`
+**Test:** Run `python tools/define_slots.py assets/backgrounds/van_gogh_cafe.jpg`
 on a desktop, define 3 slots, verify JSON output. Then SSH to Pi, run
 `python src/compositor.py --debug` and confirm background renders on Inky.
 
@@ -30,8 +30,8 @@ produces clean ENTERED/EXITED events.
 **Deliverables:**
 - `src/camera.py` — `picamera2` + `IMX500` initialisation; detection callback;
   delivers bounding-box crops to a queue
-- `src/presence.py` — state machine (ABSENT → ENTERING → PROCESSING → PRESENT
-  → EXITING → ABSENT); debounce logic; ghost re-entry cache
+- `src/presence.py` — state machine (ABSENT → ENTERING → PRESENT → EXITING
+  → ABSENT); debounce logic; ghost re-entry cache
 
 **Test:** Run `python src/camera.py` on Pi with camera attached. Confirm
 `ENTERED` events logged when walking past, `EXITED` events after leaving.
@@ -59,7 +59,7 @@ DISA-STIG, FIPS 140-3, PEP 604. Full traceability in `SECURITY-POLICY.md`.
 | SEC-01 | As an operator, I need model checksums verified after download so tampered models cannot load | `install.sh` | NIST SI-7, OWASP A08, FIPS 140-3 |
 | SEC-02 | As an operator, I need config validated at startup so malformed values fail fast | new `src/config_validator.py` | OWASP A05, NIST CM-6 |
 | SEC-04 | As an operator, I need pip packages hash-pinned so supply chain attacks are blocked | `requirements.txt` | OWASP A08, FIPS 140-3 |
-| SEC-05 | As an operator, I need Pillow floor bumped to >=10.4 to exclude known CVEs | `requirements.txt` | OWASP A06 |
+| SEC-05 | As an operator, I need Pillow floor bumped to >=12.0 to exclude known CVEs | `requirements.txt` | OWASP A06 |
 | SEC-08 | As an operator, I need error loops bounded so hardware faults don't exhaust resources | `src/camera.py` | DISA-STIG V-222659 |
 | SEC-09 | As an operator, I need slot tool input validated so invalid dimensions are rejected | `tools/define_slots.py` | DISA-STIG V-222612 |
 | SEC-10 | As an operator, I need core dumps restricted on 512 MB device | `install.sh` | CIS L2 |
@@ -163,7 +163,7 @@ RestrictNamespaces=yes
 RestrictRealtime=yes
 MemoryDenyWriteExecute=yes
 ReadWritePaths=/var/log/vangogh
-ReadOnlyPaths=/home/vangogh/VanGaugh
+ReadOnlyPaths=/home/vangogh/vangogh-living-scene
 LimitCORE=0
 Restart=on-failure
 RestartSec=10

@@ -46,8 +46,10 @@ Peak during style transfer ~486 MB
 ```
 
 The TFLite interpreter is created per-inference and explicitly destroyed
-with `gc.collect()` to stay within the ~512 MB envelope. RSS is monitored;
-a WARNING is logged if it exceeds 460 MB.
+with `gc.collect()` to stay within the ~512 MB envelope. RSS is enforced
+in the main event loop via `_check_rss()` after each processing stage; a
+WARNING and `ERROR_THRESHOLD_BREACH` security event are emitted if RSS
+exceeds the configured `memory.rss_warning_mb` threshold (default 460 MB).
 
 ## Sprint 2 — Camera and presence details
 
@@ -147,7 +149,7 @@ embedded IoT device. Full standards traceability is documented in
 
 ### Test suite (`tests/`, SEC-07)
 
-- 39 tests across 7 test files covering all Sprint 1–3 modules.
+- 48 tests across 8 test files covering all Sprint 1–4 modules.
 - Tests run without hardware (camera, display, models mocked or skipped).
 - Covers: config validation, slot management, compositor magic bytes,
   camera error loop cap, isolator input limits, styler validation,
