@@ -19,8 +19,11 @@ directly after startup.
 
 - Consumes the crop queue from `camera.py`.
 - Implements the state machine: ABSENT → ENTERING → PRESENT → EXITING → ABSENT.
-- Emits `ENTERED(crop)` and `EXITED()` events to `main.py`.
-- Maintains a TTL-based cache of the last styled figure for ghost re-entry.
+- Emits `ENTERED(crop, ghost_hit)` and `EXITED()` events to `main.py` via
+  an `EventCallback` (type alias: `Callable[[Event, Image | None, bool], None]`).
+- Contains `_GhostCache`: a TTL-based cache of the last **raw crop** (not
+  styled image). Continuously refreshed while PRESENT. On re-entry within
+  TTL, sets `ghost_hit=True` so `main.py` can reuse its cached styled image.
 - Does **not** do any image processing.
 
 **State definitions:**
@@ -51,24 +54,37 @@ directly after startup.
 
 - Owns the current scene state: background image + dict of active figures
   keyed by slot ID.
-- `add_figure(slot_id, rgba_image)` → updates scene.
-- `remove_figure(slot_id)` → updates scene.
+- `add_figure(slot: Slot, figure: Image)` → resizes RGBA figure to slot
+  dimensions, stores in scene.
+- `remove_figure(slot_id)` → removes figure from scene.
 - `render()` → returns a PIL Image of the full composited scene (1600×1200).
+- Validates background file via magic byte checks (PNG/JPEG) before loading
+  (SEC-16). Pixel limit enforced via `Image.MAX_IMAGE_PIXELS` (SEC-14).
 
 ## `slots.py`
 
-- Loads `slots.json` for the current background.
-- Validates slot coordinates are within image bounds.
-- Provides `assign_slot()` → returns the next free slot ID.
-- Provides `release_slot(slot_id)`.
-- Slot schema: `{"id": "left_table", "x": 420, "y": 680, "width": 160, "height": 200}`
+- Loads `slots.json` for the current background. File size capped at 1 MB
+  (SEC-12, OWASP A04).
+- Validates slot coordinates are within image bounds (non-negative, positive
+  dimensions, fits within background).
+- `Slot` dataclass: `id`, `x`, `y`, `width`, `height`, `occupied` (bool).
+- `SlotManager.assign_slot()` → returns the first free `Slot` (marked
+  occupied), or `None` if all full.
+- `SlotManager.release_slot(slot_id)` → marks slot as free.
+- `SlotManager.get_slot(slot_id)` → returns `Slot` by ID, or `None`.
+- `SlotManager.all_slots` → list of all slots. `free_count` → int.
+- Slot JSON schema: `{"id": "left_table", "x": 420, "y": 680, "width": 160, "height": 200}`
 
 ## `display.py`
 
 - Thin wrapper around the `inky` library.
+- `DisplayProtocol`: structural `Protocol` subtype of `inky.auto` display,
+  enabling tests to substitute a mock without the hardware present.
+- Hardware is lazy-initialised on first `show()` call (not at import or
+  `__init__`), so all other modules can be tested without the Inky connected.
 - `show(pil_image)` → converts to display palette and sends to Inky.
+  Resizes if image dimensions do not match the display. Logs refresh timing.
 - Handles the 7-colour palette quantisation via `inky`'s built-in dithering.
-- Logs refresh start and completion times.
 
 ## `main.py`
 
