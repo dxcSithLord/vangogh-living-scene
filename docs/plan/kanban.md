@@ -5,7 +5,7 @@
 > Before making code changes: confirm the sprint matches
 > `docs/plan/sprints.md` per CLAUDE.md "Before writing code" rule #3.
 
-Last reviewed: 2026-04-08 (Sprint 7: P1–P8 done, P7 doc cards remain)
+Last reviewed: 2026-04-08 (Sprint 7: P1–P6 and P8 done; P7 doc cards remain)
 
 ---
 

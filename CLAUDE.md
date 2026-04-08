@@ -90,10 +90,9 @@ VanGaugh/
 | System diagram and memory management sequence | `docs/plan/architecture.md` |
 | Sprint deliverables and test criteria | `docs/plan/sprints.md` |
 | Hardware prerequisites checklist | `docs/plan/prerequisites.md` |
-| Install commands and model download URLs | `docs/plan/install.md` |
+| Install process (online, offline, dev) and model URLs | `docs/plan/install.md` |
 | Known risks and mitigations | `docs/plan/risks.md` |
 | Security policy and standards traceability | `SECURITY-POLICY.md` |
-| Install process (online, offline, dev) | `docs/plan/install.md` |
 
 ---
 
@@ -132,7 +131,8 @@ VanGaugh/
 
 ### Bash script standards
 
-All bash scripts (`install.sh`, `scripts/*.sh`) must comply with:
+All bash scripts (`install.sh`, `scripts/*.sh`) should comply with
+(tracked in kanban — `install.sh` `umask 0077` outstanding):
 
 - `set -euo pipefail` and `umask 0077` (CIS L2)
 - Input validation on all arguments and paths (DISA-STIG V-222602)
