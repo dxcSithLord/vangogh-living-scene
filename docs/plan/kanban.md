@@ -5,7 +5,7 @@
 > Before making code changes: confirm the sprint matches
 > `docs/plan/sprints.md` per CLAUDE.md "Before writing code" rule #3.
 
-Last reviewed: 2026-04-08 (Sprint 7: all P7 doc cards done; G-INSTALL-UMASK remains)
+Last reviewed: 2026-04-08 (Sprint 7: all gap-analysis cards complete)
 
 ---
 
@@ -84,7 +84,7 @@ Cards at the same level can run in parallel; work lower levels after higher.
 | ~~P7~~ | ~~G-DOC-ARCH~~ | ~~Update ARCHITECTURE.md — ghost cache, RSS checks, fast path, error recovery~~ | — | ✅ Done (#50) | — |
 | ~~P7~~ | ~~G-DOC-MODULES~~ | ~~Update modules.md — slots API, GhostCache, EventCallback, DisplayProtocol~~ | — | ✅ Done (#51) | — |
 | ~~P7~~ | ~~G-DOC-SECURITY~~ | ~~Security reference docs — event catalog, validation rules, resource limits~~ | — | ✅ Done (#52) | — |
-| **P6** | G-INSTALL-UMASK | Add `umask 0077` to `install.sh` (CIS L2 compliance) | — | `gap/g-install-umask` | `install.sh` |
+| ~~P6~~ | ~~G-INSTALL-UMASK~~ | ~~Add `umask 0077` to `install.sh` (CIS L2 compliance)~~ | — | ✅ Done (#53) | — |
 | ~~P8~~ | ~~G-INSTALL-DOC~~ | ~~Offline install pipeline + refresh `docs/plan/install.md`~~ | — | ✅ Done (#47) | — |
 
 ### Card notes
@@ -185,6 +185,7 @@ Full history in `PLAN_HISTORY.md`.
 
 | ID | Title | PR | Merged |
 |---|---|---|---|
+| **G-INSTALL-UMASK** | Add `umask 0077` to install.sh and compliance-check.sh (CIS L2) | #53 | 2026-04-08 |
 | **G-DOC-SECURITY** | Security reference docs — event catalog, validation rules, resource limits | #52 | 2026-04-08 |
 | **G-DOC-MODULES** | modules.md refresh — slots API, GhostCache, EventCallback, DisplayProtocol | #51 | 2026-04-08 |
 | **G-DOC-ARCH** | ARCHITECTURE.md refresh — ghost cache, RSS, fast path, error recovery | #50 | 2026-04-08 |
