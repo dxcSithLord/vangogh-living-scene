@@ -84,7 +84,7 @@ Cards at the same level can run in parallel; work lower levels after higher.
 | **P7** | G-DOC-ARCH | Update ARCHITECTURE.md — ghost cache, RSS checks, fast path, error recovery | — | `gap/g-doc-arch` | `ARCHITECTURE.md`, `docs/plan/architecture.md` |
 | **P7** | G-DOC-MODULES | Update modules.md — slots API, GhostCache, EventCallback, DisplayProtocol | — | `gap/g-doc-modules` | `docs/modules.md` |
 | **P7** | G-DOC-SECURITY | Security reference docs — event catalog, validation rules, resource limits | — | `gap/g-doc-security` | `docs/` (new files) |
-| **P8** | G-INSTALL-DOC | Offline install pipeline + refresh `docs/plan/install.md` | — | `gap/g-install-doc` | `docs/`, `scripts/` |
+| **P8** | G-INSTALL-DOC | Offline install pipeline + refresh `docs/plan/install.md` | — | `gap/g-install-doc` | `docs/`, `scripts/` | ⏳ PR #47 open |
 
 ### Card notes
 
@@ -174,7 +174,9 @@ Authoritative sources to sync against: `install.sh`, `requirements.lock`,
 
 ## In-progress
 
-(none)
+| Pri | ID | Title | PR | Status |
+|---|---|---|---|---|
+| P8 | G-INSTALL-DOC | Offline install pipeline + dev setup + docs refresh | #47 | CodeRabbit review findings addressed, awaiting re-review |
 
 ---
 

@@ -5,7 +5,7 @@
 > Completed work → `PLAN_HISTORY.md`.
 > Sprint definitions → `docs/plan/sprints.md`.
 
-Version: 3.3
+Version: 3.4
 Last reviewed: 2026-04-07
 
 ---
@@ -26,15 +26,15 @@ Top of kanban (snapshot — authoritative copy in `docs/plan/kanban.md`):
 |---|---|---|---|
 | ~~P1~~ | ~~G-SLOTS~~ | ~~Missing slots JSON~~ | ~~#4~~ |
 | ~~P2~~ | ~~G-GHOST~~ | ~~Ghost cache refresh + skip logic~~ | ~~#6 #7~~ |
-| P3 | G-RSS | Enforce `memory.rss_warning_mb` in main loop | #8 |
-| P4 | G-CONFIG-EVT | Emit `CONFIG_VALIDATION_FAIL` + fix init order | #18 |
-| P5 | G-VERIFY | Verification tasks (read-only) | #11 #13 #20 |
-| P6 | G-COMPLY-VERSIONS | Pre-flight tool-version check | — |
+| ~~P3~~ | ~~G-RSS~~ | ~~Enforce `memory.rss_warning_mb` in main loop~~ | ~~#8~~ |
+| ~~P4~~ | ~~G-CONFIG-EVT~~ | ~~Emit `CONFIG_VALIDATION_FAIL` + fix init order~~ | ~~#18~~ |
+| ~~P5~~ | ~~G-VERIFY~~ | ~~Verification tasks (read-only)~~ | ~~#11 #13 #20~~ |
+| ~~P6~~ | ~~G-COMPLY-VERSIONS~~ | ~~Closed (redundant, folded into G-INSTALL-DOC)~~ | ~~—~~ |
 | P7 | G-DOC | Docs cleanup | #3 #5 #9 #10 #12 #14 #15 #19 |
 | P7 | G-DOC-ARCH | Update ARCHITECTURE.md — ghost cache, RSS, fast path | — |
 | P7 | G-DOC-MODULES | Update modules.md — slots API, GhostCache, protocols | — |
 | P7 | G-DOC-SECURITY | Security reference docs — events, validation, limits | — |
-| P8 | G-INSTALL-DOC | Refresh install.md (gated on-Pi run) | — |
+| **P8** | **G-INSTALL-DOC** | **Offline install pipeline + dev setup + docs** | **PR #47** |
 
 ---
 
