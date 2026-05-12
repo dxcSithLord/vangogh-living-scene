@@ -4,6 +4,7 @@
 # Standards: NIST SI-7, OWASP A08, FIPS 140-3 (SHA-256 integrity),
 #            CIS L2 (core dump restriction), NIST SC-28 (file permissions)
 set -euo pipefail
+umask 0077  # CIS L2: restrictive default permissions on created files
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"

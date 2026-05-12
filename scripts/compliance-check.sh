@@ -21,6 +21,7 @@
 #   1  One or more checks failed.
 
 set -euo pipefail
+umask 0077  # CIS L2: restrictive default permissions on created files
 
 # ---------------------------------------------------------------------------
 # Constants

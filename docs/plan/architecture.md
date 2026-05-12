@@ -14,7 +14,7 @@
 │  └── u2net_human_seg.onnx (~176 MB) → RGBA subject PNG         │
 │      [load once, session kept open across subjects]             │
 │                                                                 │
-│  TFLite (tflite-runtime, 4 threads)                            │
+│  TFLite (ai-edge-litert, 4 threads)                            │
 │  ├── style_predict: cached at startup (~0 ms after init)       │
 │  └── style_transform: per-subject (~30–90 s on A53)            │
 │                                                                 │

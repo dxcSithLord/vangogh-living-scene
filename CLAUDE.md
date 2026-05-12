@@ -34,7 +34,7 @@ vangogh-living-scene/
 ├── requirements.txt             ← human-readable dependency pins
 ├── requirements.in              ← source pins for pip-compile
 ├── requirements.lock            ← SHA-256 hash-pinned lockfile
-├── install.sh
+├── install.sh                   ← production installer (online + offline modes)
 ├── vangogh_scene.service
 ├── config/
 │   └── config.yaml
@@ -58,12 +58,19 @@ vangogh-living-scene/
 │   ├── presence.py
 │   ├── slots.py
 │   └── config_validator.py
+├── scripts/
+│   ├── bundle-offline.sh        ← offline bundle builder (air-gapped deploy)
+│   ├── dev-setup.sh             ← developer environment setup
+│   └── compliance-check.sh      ← CI/dev compliance runner
 ├── tools/
 │   └── define_slots.py
 └── docs/
     ├── modules.md               ← module responsibilities (all 9 modules)
     ├── models.md                ← model specs (detection, style, rembg)
     ├── references.md            ← external reference URLs
+    ├── security-events.md       ← security event catalog (6 events)
+    ├── config-validation.md     ← config validation rules reference
+    ├── security-limits.md       ← resource limits reference
     └── plan/
         ├── gap-analysis.md      ← 8 verified assumptions from research
         ├── architecture.md      ← system diagram + memory sequence
@@ -86,9 +93,12 @@ vangogh-living-scene/
 | System diagram and memory management sequence | `docs/plan/architecture.md` |
 | Sprint deliverables and test criteria | `docs/plan/sprints.md` |
 | Hardware prerequisites checklist | `docs/plan/prerequisites.md` |
-| Install commands and model download URLs | `docs/plan/install.md` |
+| Install process (online, offline, dev) and model URLs | `docs/plan/install.md` |
 | Known risks and mitigations | `docs/plan/risks.md` |
 | Security policy and standards traceability | `SECURITY-POLICY.md` |
+| Security event catalog (all 6 events, emitters, severity) | `docs/security-events.md` |
+| Config validation rules (ranges, strings, paths) | `docs/config-validation.md` |
+| Resource limits (image, file size, memory, systemd) | `docs/security-limits.md` |
 
 ---
 
@@ -124,6 +134,21 @@ vangogh-living-scene/
 - No shell=True in subprocess calls.
 - Image inputs are validated (format, dimensions) before processing.
 - Temporary files use `tempfile` and are cleaned up in `finally` blocks.
+
+### Bash script standards
+
+All bash scripts (`install.sh`, `scripts/*.sh`) must comply with:
+
+- `set -euo pipefail` and `umask 0077` (CIS L2)
+- Input validation on all arguments and paths (DISA-STIG V-222602)
+- SHA-256 checksum verification for all downloaded/transferred artifacts
+  (NIST SI-7, FIPS 140-3)
+- No `eval`, no unquoted expansions, no `shell=True` equivalents
+- `curl` calls must use `--fail` (`-f`) to abort on HTTP errors
+- `pip install` must use `--require-hashes` from lockfiles — never
+  `pip install --upgrade pip` in hash-pinned environments (OWASP A08)
+- All scripts must pass `shellcheck` with no warnings
+- Standards header comment referencing applicable controls
 
 ### Memory management (critical on 512 MB device)
 

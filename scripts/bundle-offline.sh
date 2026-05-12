@@ -207,13 +207,7 @@ if [[ "${ARCH}" != "aarch64" ]]; then
         --only-binary=":all:"
     )
 else
-    printf 'INFO: Native aarch64 download\n'
-    PIP_ARGS+=(
-        --python-version "3.13"
-        --implementation "cp"
-        --abi "cp313"
-        --only-binary=":all:"
-    )
+    printf 'INFO: Native aarch64 download (no platform constraints needed)\n'
 fi
 
 pip "${PIP_ARGS[@]}"

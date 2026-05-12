@@ -20,8 +20,6 @@ detection:
     - "person"
     - "cat"
     - "dog"
-    - "bird"
-    - "horse"
 
 presence:
   entering_frames: 8     # consecutive detections to confirm entry (at 5 fps)
