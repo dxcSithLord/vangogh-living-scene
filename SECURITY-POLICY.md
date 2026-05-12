@@ -74,8 +74,8 @@ Added in Sprint 3 (SEC-06). Emitted to a dedicated `security` logger.
 | Event | Trigger | Severity |
 |-------|---------|----------|
 | `CONFIG_VALIDATION_FAIL` | Malformed or out-of-range config value at startup | ERROR |
-| `CHECKSUM_MISMATCH` | Model file fails SHA-256 verification (build-time only: `install.sh`, `bundle-offline.sh`) | CRITICAL |
-| `ERROR_THRESHOLD_BREACH` | Consecutive error count exceeds cap in camera loop | WARNING |
+| `CHECKSUM_MISMATCH` | Model file fails SHA-256 verification (build scripts: `install.sh`, `bundle-offline.sh` emit to stderr; runtime integrity checks logged to security logger) | CRITICAL |
+| `ERROR_THRESHOLD_BREACH` | RSS memory threshold breach (`memory.rss_warning_mb`) or pipeline failure (isolation/style errors) | WARNING |
 | `BOUNDS_VIOLATION` | Slot coordinates or dimensions fail validation | WARNING |
 | `INVALID_FILE_TYPE` | Image file fails magic byte check | WARNING |
 | `FILE_SIZE_EXCEEDED` | JSON or image file exceeds size limit | WARNING |
