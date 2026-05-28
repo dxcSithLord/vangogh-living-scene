@@ -53,7 +53,8 @@ with `gc.collect()` to stay within the ~512 MB envelope. RSS is enforced
 in the main event loop via `_check_rss()`, which logs current RSS at
 DEBUG level and emits a WARNING + `ERROR_THRESHOLD_BREACH` security event
 on the first breach of `memory.rss_warning_mb` (default 460 MB). The alert
-auto-resets when RSS drops back below the threshold.
+auto-resets when RSS drops back below the threshold. `ERROR_THRESHOLD_BREACH`
+is also emitted on pipeline failures (e.g., isolation or style transfer errors).
 
 `_check_rss()` instrumentation points:
 
